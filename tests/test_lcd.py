@@ -1,4 +1,4 @@
-"""Unit tests for the rfid_servo_lock.lcd module."""
+"""Unit tests for the rpi_electronics_playground.lcd module."""
 
 import logging
 from collections.abc import Generator
@@ -12,7 +12,7 @@ from rpi_electronics_playground.lcd import LCD1602
 @pytest.fixture
 def mock_smbus() -> Generator[MagicMock, None, None]:
     """Fixture to mock smbus2.SMBus."""
-    with patch("rfid_servo_lock.lcd.smbus.SMBus") as mock:
+    with patch("rpi_electronics_playground.lcd.smbus.SMBus") as mock:
         mock_bus = MagicMock()
         mock.return_value = mock_bus
         yield mock_bus
@@ -21,7 +21,7 @@ def mock_smbus() -> Generator[MagicMock, None, None]:
 @pytest.fixture
 def mock_sleep() -> Generator[MagicMock, None, None]:
     """Fixture to mock time.sleep."""
-    with patch("rfid_servo_lock.lcd.time.sleep") as mock:
+    with patch("rpi_electronics_playground.lcd.time.sleep") as mock:
         yield mock
 
 

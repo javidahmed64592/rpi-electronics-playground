@@ -1,4 +1,4 @@
-"""Test configuration and fixtures for the rfid_servo_lock package."""
+"""Test configuration and fixtures for the rpi_electronics_playground package."""
 
 import sys
 from unittest.mock import MagicMock

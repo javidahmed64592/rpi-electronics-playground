@@ -35,18 +35,14 @@ dev = [
 repository = "https://github.com/javidahmed64592/template-python"
 
 [project.scripts]
-rfid-lock = "rfid_servo_lock.main:run"
-rfid-read = "rfid_servo_lock.rfid:read"
-rfid-write = "rfid_servo_lock.rfid:write"
-servo-debug = "rfid_servo_lock.servo:debug"
-lcd-off = "rfid_servo_lock.lcd:turn_off"
-lcd-debug = "rfid_servo_lock.lcd:debug"
+lcd-off = "rpi_electronics_playground.lcd:turn_off"
+lcd-debug = "rpi_electronics_playground.lcd:debug"
 
 [tool.hatch.build]
 include = [
   "README.md",
   "LICENSE",
-  "rfid_servo_lock/**",
+  "rpi_electronics_playground/**",
 ]
 
 [tool.pytest.ini_options]
