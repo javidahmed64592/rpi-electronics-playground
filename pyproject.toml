@@ -35,6 +35,7 @@ dev = [
 repository = "https://github.com/javidahmed64592/template-python"
 
 [project.scripts]
+main = "rpi_electronics_playground.main:run"
 lcd-off = "rpi_electronics_playground.lcd:turn_off"
 lcd-debug = "rpi_electronics_playground.lcd:debug"
 
