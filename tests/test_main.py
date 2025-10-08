@@ -99,7 +99,7 @@ class TestRun:
             run()
 
         # Verify distance measurements were called
-        assert mock_sensor_instance.get_distance.call_count >= 3
+        assert mock_sensor_instance.get_distance.call_count >= 3  # noqa: PLR2004
 
         # Verify distance logging
         assert "Distance: 25.30 cm" in caplog.text
