@@ -62,6 +62,7 @@ class UltrasonicSensor:
 
         :return float: Distance in centimeters, or -1.0 if measurement failed.
         """
+        timeout = 0.5  # seconds
         try:
             # Send trigger pulse
             GPIO.output(self.trig_pin, GPIO.LOW)
@@ -79,7 +80,7 @@ class UltrasonicSensor:
             while GPIO.input(self.echo_pin) == GPIO.LOW:
                 pulse_start = time.time()
                 # Timeout after 0.5 seconds to prevent infinite loop
-                if pulse_start - timeout_start > 0.5:
+                if pulse_start - timeout_start > timeout:
                     return -1.0
 
             # Wait for echo to go LOW (end of return signal)
@@ -89,7 +90,7 @@ class UltrasonicSensor:
             while GPIO.input(self.echo_pin) == GPIO.HIGH:
                 pulse_end = time.time()
                 # Timeout after 0.5 seconds to prevent infinite loop
-                if pulse_end - timeout_end > 0.5:
+                if pulse_end - timeout_end > timeout:
                     return -1.0
 
             # Calculate distance
@@ -114,7 +115,7 @@ class UltrasonicSensor:
 
         # Be more lenient with outlier detection when we have few readings
         buffer_size = len(self.readings_buffer)
-        if buffer_size < 3:
+        if buffer_size < 3:  # noqa: PLR2004
             # Use a larger threshold when we don't have much data
             adaptive_threshold = self.outlier_threshold * 2
         else:
@@ -143,7 +144,7 @@ class UltrasonicSensor:
                     if not self._is_outlier(reading):
                         valid_readings.append(reading)
                     # Even outliers can be useful if we don't have many readings
-                    elif len(valid_readings) < 2:
+                    elif len(valid_readings) < 2:  # noqa: PLR2004
                         valid_readings.append(reading)
 
                     if len(valid_readings) >= self.sample_count:
@@ -168,7 +169,7 @@ class UltrasonicSensor:
             self.readings_buffer.append(filtered_distance)
 
             # Calculate moving average with more lenient requirements
-            if len(self.readings_buffer) >= 2:
+            if len(self.readings_buffer) >= 2:  # noqa: PLR2004
                 smoothed_distance = statistics.mean(self.readings_buffer)
                 self.last_stable_reading = smoothed_distance
                 return float(round(smoothed_distance, 1))

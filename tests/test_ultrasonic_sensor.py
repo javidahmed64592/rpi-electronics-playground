@@ -32,10 +32,10 @@ class TestUltrasonicSensor:
         # Test default parameters
         sensor = UltrasonicSensor()
 
-        assert sensor.trig_pin == 5
-        assert sensor.echo_pin == 6
-        assert sensor.sample_count == 5
-        assert sensor.filter_size == 10
+        assert sensor.trig_pin == 5  # noqa: PLR2004
+        assert sensor.echo_pin == 6  # noqa: PLR2004
+        assert sensor.sample_count == 5  # noqa: PLR2004
+        assert sensor.filter_size == 10  # noqa: PLR2004
         assert isinstance(sensor.readings_buffer, deque)
         assert sensor.last_stable_reading is None
 
@@ -67,7 +67,7 @@ class TestUltrasonicSensor:
         distance = sensor._get_single_distance()
 
         # Expected: (0.0001 * 34300) / 2 = 1.715, rounded to 1.71
-        assert distance == 1.71
+        assert distance == 1.71  # noqa: PLR2004
 
         # Verify trigger pulse sequence
         expected_calls = [
@@ -151,7 +151,7 @@ class TestUltrasonicSensor:
             with caplog.at_level(logging.DEBUG):
                 distance = sensor.get_distance()
 
-            assert distance == 25.0
+            assert distance == 25.0  # noqa: PLR2004
             assert "Using single reading" in caplog.text
 
     def test_moving_average_buffer(self, mock_gpio: MagicMock) -> None:
@@ -166,8 +166,8 @@ class TestUltrasonicSensor:
                 sensor.get_distance()
 
             # Buffer should respect maxlen
-            assert len(sensor.readings_buffer) == 3
-            assert sensor.readings_buffer.maxlen == 3
+            assert len(sensor.readings_buffer) == 3  # noqa: PLR2004
+            assert sensor.readings_buffer.maxlen == 3  # noqa: PLR2004
 
     def test_cleanup(self, mock_gpio: MagicMock, caplog: pytest.LogCaptureFixture) -> None:
         """Test sensor cleanup."""
