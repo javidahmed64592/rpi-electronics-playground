@@ -60,8 +60,7 @@ class UltrasonicSensor:
     def _get_single_distance(self) -> float:
         """Get a single distance measurement.
 
-        :return: Distance in centimeters, or -1.0 if measurement failed.
-        :rtype: float
+        :return float: Distance in centimeters, or -1.0 if measurement failed.
         """
         try:
             # Send trigger pulse
@@ -108,8 +107,7 @@ class UltrasonicSensor:
         """Check if a reading is an outlier.
 
         :param float reading: The reading to check.
-        :return: True if reading is an outlier.
-        :rtype: bool
+        :return bool: True if reading is an outlier.
         """
         if self.last_stable_reading is None:
             return False
@@ -131,37 +129,34 @@ class UltrasonicSensor:
         Uses multiple samples, outlier rejection, and moving average filtering
         to provide more stable and accurate readings.
 
-        :return: Distance in centimeters.
-        :rtype: float
+        :return float: Distance in centimeters.
         """
         try:
             # Take multiple samples and filter out bad readings
             valid_readings = []
 
-            for _ in range(self.sample_count * 2):  # Take extra samples for filtering
+            for _ in range(self.sample_count * 2):
                 reading = self._get_single_distance()
 
                 if reading > 0:  # Valid reading
                     # Check for outliers only if we have a reference
                     if not self._is_outlier(reading):
                         valid_readings.append(reading)
-                    else:
-                        # Even outliers can be useful if we don't have many readings
-                        if len(valid_readings) < 2:
-                            valid_readings.append(reading)
+                    # Even outliers can be useful if we don't have many readings
+                    elif len(valid_readings) < 2:
+                        valid_readings.append(reading)
 
-                    # If we have enough good readings, break early
                     if len(valid_readings) >= self.sample_count:
                         break
 
                 # Small delay between samples
                 time.sleep(0.01)
 
-            # More lenient check - accept even 1 valid reading if needed
             if len(valid_readings) == 0:
                 logger.warning("No valid readings for distance measurement")
                 return -1.0
-            elif len(valid_readings) == 1:
+
+            if len(valid_readings) == 1:
                 # Single reading - use it but mark as less reliable
                 filtered_distance = valid_readings[0]
                 logger.debug("Using single reading: %.1f cm", filtered_distance)
@@ -173,51 +168,18 @@ class UltrasonicSensor:
             self.readings_buffer.append(filtered_distance)
 
             # Calculate moving average with more lenient requirements
-            if len(self.readings_buffer) >= 2:  # Reduced from 3 to 2
+            if len(self.readings_buffer) >= 2:
                 smoothed_distance = statistics.mean(self.readings_buffer)
                 self.last_stable_reading = smoothed_distance
                 return round(smoothed_distance, 1)
-            else:
-                # First reading - return as-is
-                self.last_stable_reading = filtered_distance
-                return round(filtered_distance, 1)
+
+            # First reading - return as-is
+            self.last_stable_reading = filtered_distance
+            return round(filtered_distance, 1)
 
         except Exception:
             logger.exception("Error measuring distance!")
             return -1.0
-
-    def get_distance_with_quality(self) -> tuple[float, str]:
-        """Get distance measurement with quality indicator.
-
-        :return: Tuple of (distance, quality) where quality is 'excellent', 'good', 'fair', or 'poor'.
-        :rtype: tuple[float, str]
-        """
-        distance = self.get_distance()
-
-        if distance < 0:
-            return distance, "poor"
-
-        # Determine quality based on buffer size and reading stability
-        buffer_size = len(self.readings_buffer)
-
-        if buffer_size >= self.filter_size:
-            # Calculate variance of recent readings for stability assessment
-            if len(self.readings_buffer) > 1:
-                variance = statistics.variance(self.readings_buffer)
-                if variance < 0.5:
-                    quality = "excellent"
-                elif variance < 2.0:
-                    quality = "good"
-                else:
-                    quality = "fair"
-            else:
-                quality = "good"
-        elif buffer_size >= 3:
-            quality = "fair"
-        else:
-            quality = "poor"
-
-        return distance, quality
 
     def cleanup(self) -> None:
         """Clean up GPIO resources."""
@@ -238,9 +200,9 @@ def debug() -> None:
         )
 
         for i in range(15):
-            distance, quality = sensor.get_distance_with_quality()
+            distance = sensor.get_distance()
             if distance >= 0:
-                logger.info("Measurement %d: Distance = %.1f cm (Quality: %s)", i + 1, distance, quality)
+                logger.info("Measurement %d: Distance = %.1f cm", i + 1, distance)
             else:
                 logger.warning("Measurement %d: Failed to get reading", i + 1)
             time.sleep(1.0)
