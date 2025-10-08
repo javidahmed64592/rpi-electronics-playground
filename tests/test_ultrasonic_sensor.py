@@ -48,13 +48,20 @@ class TestUltrasonicSensor:
         """Test single distance measurement with successful reading."""
         # Mock GPIO input sequence for echo response
         mock_gpio.input.side_effect = [
-            mock_gpio.LOW,  # Echo starts LOW
-            mock_gpio.HIGH,  # Echo goes HIGH
-            mock_gpio.LOW,  # Echo goes LOW
+            mock_gpio.LOW,  # First check in wait-for-HIGH loop
+            mock_gpio.HIGH,  # Echo goes HIGH (exits first loop)
+            mock_gpio.HIGH,  # First check in wait-for-LOW loop
+            mock_gpio.LOW,  # Echo goes LOW (exits second loop)
         ]
 
-        # Mock time for pulse duration: 0.0001 seconds = 1.715 cm distance
+        # Mock time.time() calls:
+        # 1. Initial timeout_start time
+        # 2. pulse_start time (when echo goes HIGH)
+        # 3. Initial timeout_end time
+        # 4. pulse_end time (when echo goes LOW)
+        # Pulse duration: 1.0001 - 1.0 = 0.0001 seconds = 1.715 cm distance
         mock_time.time.side_effect = [1.0, 1.0, 1.0, 1.0001]
+        mock_time.sleep = MagicMock()  # Mock sleep calls
 
         sensor = UltrasonicSensor()
         distance = sensor._get_single_distance()
