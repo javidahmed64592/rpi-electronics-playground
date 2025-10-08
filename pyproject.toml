@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "rpi-electronics-playground"
 version = "0.1.0"
-description = "A Raspberry Pi-based RFID-controlled servo motor lock system."
+description = "A Raspberry Pi-based electronics playground."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
@@ -32,7 +32,7 @@ dev = [
 ]
 
 [project.urls]
-repository = "https://github.com/javidahmed64592/template-python"
+repository = "https://github.com/javidahmed64592/rpi-electronics-playground"
 
 [project.scripts]
 main = "rpi_electronics_playground.main:run"
