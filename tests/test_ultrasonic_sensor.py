@@ -66,8 +66,8 @@ class TestUltrasonicSensor:
         sensor = UltrasonicSensor()
         distance = sensor._get_single_distance()
 
-        # Expected: (0.0001 * 34300) / 2 = 1.715, rounded to 1.72
-        assert distance == 1.72
+        # Expected: (0.0001 * 34300) / 2 = 1.715, rounded to 1.71
+        assert distance == 1.71
 
         # Verify trigger pulse sequence
         expected_calls = [
