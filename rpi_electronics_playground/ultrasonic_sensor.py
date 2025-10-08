@@ -114,8 +114,16 @@ class UltrasonicSensor:
         if self.last_stable_reading is None:
             return False
 
+        # Be more lenient with outlier detection when we have few readings
+        buffer_size = len(self.readings_buffer)
+        if buffer_size < 3:
+            # Use a larger threshold when we don't have much data
+            adaptive_threshold = self.outlier_threshold * 2
+        else:
+            adaptive_threshold = self.outlier_threshold
+
         deviation = abs(reading - self.last_stable_reading)
-        return deviation > self.outlier_threshold
+        return deviation > adaptive_threshold
 
     def get_distance(self) -> float:
         """Measure distance using the ultrasonic sensor with improved accuracy.
@@ -137,6 +145,10 @@ class UltrasonicSensor:
                     # Check for outliers only if we have a reference
                     if not self._is_outlier(reading):
                         valid_readings.append(reading)
+                    else:
+                        # Even outliers can be useful if we don't have many readings
+                        if len(valid_readings) < 2:
+                            valid_readings.append(reading)
 
                     # If we have enough good readings, break early
                     if len(valid_readings) >= self.sample_count:
@@ -145,24 +157,28 @@ class UltrasonicSensor:
                 # Small delay between samples
                 time.sleep(0.01)
 
-            # If we don't have enough valid readings, return error
-            if len(valid_readings) < 2:
-                logger.warning("Insufficient valid readings for distance measurement")
+            # More lenient check - accept even 1 valid reading if needed
+            if len(valid_readings) == 0:
+                logger.warning("No valid readings for distance measurement")
                 return -1.0
-
-            # Calculate median of the samples (more robust than mean)
-            filtered_distance = statistics.median(valid_readings)
+            elif len(valid_readings) == 1:
+                # Single reading - use it but mark as less reliable
+                filtered_distance = valid_readings[0]
+                logger.debug("Using single reading: %.1f cm", filtered_distance)
+            else:
+                # Multiple readings - use median for robustness
+                filtered_distance = statistics.median(valid_readings)
 
             # Add to moving average buffer
             self.readings_buffer.append(filtered_distance)
 
-            # Calculate moving average
-            if len(self.readings_buffer) >= 3:  # Need at least 3 readings for stability
+            # Calculate moving average with more lenient requirements
+            if len(self.readings_buffer) >= 2:  # Reduced from 3 to 2
                 smoothed_distance = statistics.mean(self.readings_buffer)
                 self.last_stable_reading = smoothed_distance
                 return round(smoothed_distance, 1)
             else:
-                # Not enough readings in buffer yet, return filtered reading
+                # First reading - return as-is
                 self.last_stable_reading = filtered_distance
                 return round(filtered_distance, 1)
 

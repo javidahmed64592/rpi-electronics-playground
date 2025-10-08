@@ -22,8 +22,8 @@ def run() -> None:
     lcd.write(0, 0, "[STARTUP]")
     lcd.write(0, 1, "Initializing...")
 
-    # Initialize ultrasonic sensor with improved accuracy settings
-    sensor = UltrasonicSensor(trig_pin=5, echo_pin=6, sample_count=3, filter_size=5, outlier_threshold=3.0)
+    # Initialize ultrasonic sensor with more lenient accuracy settings
+    sensor = UltrasonicSensor(trig_pin=5, echo_pin=6, sample_count=3, filter_size=5, outlier_threshold=5.0)
 
     logger.info("System initialized successfully!")
 
