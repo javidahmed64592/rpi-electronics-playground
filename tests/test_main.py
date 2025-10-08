@@ -170,7 +170,7 @@ class TestRun:
         assert "System shutdown complete!" in caplog.text
 
         # Verify cleanup
-        lcd_instance.set_backlight.assert_called_with(False)
+        lcd_instance.set_backlight.assert_called_with(False)  # noqa: FBT003
         lcd_instance.cleanup.assert_called_once()
         mock_sensor_instance.cleanup.assert_called_once()
         mock_gpio.cleanup.assert_called_once()
@@ -203,7 +203,7 @@ class TestRun:
         assert "System shutdown complete!" in caplog.text
 
         # Verify cleanup
-        lcd_instance.set_backlight.assert_called_with(False)
+        lcd_instance.set_backlight.assert_called_with(False)  # noqa: FBT003
         lcd_instance.cleanup.assert_called_once()
         mock_sensor_instance.cleanup.assert_called_once()
         mock_gpio.cleanup.assert_called_once()
