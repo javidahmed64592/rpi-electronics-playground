@@ -30,7 +30,7 @@ def mock_ultrasonic_sensor() -> Generator[MagicMock, None, None]:
         yield mock
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_sleep() -> Generator[MagicMock, None, None]:
     """Fixture to mock time.sleep."""
     with patch("rpi_electronics_playground.main.time.sleep") as mock:

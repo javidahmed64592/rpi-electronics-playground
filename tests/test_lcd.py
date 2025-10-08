@@ -18,7 +18,7 @@ def mock_smbus() -> Generator[MagicMock, None, None]:
         yield mock_bus
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_sleep() -> Generator[MagicMock, None, None]:
     """Fixture to mock time.sleep."""
     with patch("rpi_electronics_playground.lcd.time.sleep") as mock:
