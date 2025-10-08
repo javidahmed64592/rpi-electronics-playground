@@ -37,8 +37,8 @@ class UltrasonicSensor:
         self.outlier_threshold = outlier_threshold
 
         # Initialize moving average filter
-        self.readings_buffer = deque(maxlen=filter_size)
-        self.last_stable_reading = None
+        self.readings_buffer: deque[float] = deque(maxlen=filter_size)
+        self.last_stable_reading: float | None = None
 
         self._initialize_sensor()
 
@@ -171,11 +171,11 @@ class UltrasonicSensor:
             if len(self.readings_buffer) >= 2:
                 smoothed_distance = statistics.mean(self.readings_buffer)
                 self.last_stable_reading = smoothed_distance
-                return round(smoothed_distance, 1)
+                return float(round(smoothed_distance, 1))
 
             # First reading - return as-is
             self.last_stable_reading = filtered_distance
-            return round(filtered_distance, 1)
+            return float(round(filtered_distance, 1))
 
         except Exception:
             logger.exception("Error measuring distance!")
