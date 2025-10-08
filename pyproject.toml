@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "example"
+name = "rpi-electronics-playground"
 version = "0.1.0"
-description = "An example pyproject.toml."
+description = "A Raspberry Pi-based electronics playground."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
@@ -15,10 +15,10 @@ authors = [
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "numpy",
+    "RPi.GPIO>=0.7.1",
+    "smbus2",
 ]
 
 [project.optional-dependencies]
@@ -32,7 +32,20 @@ dev = [
 ]
 
 [project.urls]
-repository = "https://github.com/javidahmed64592/template-python"
+repository = "https://github.com/javidahmed64592/rpi-electronics-playground"
+
+[project.scripts]
+main = "rpi_electronics_playground.main:run"
+lcd-off = "rpi_electronics_playground.lcd:turn_off"
+lcd-debug = "rpi_electronics_playground.lcd:debug"
+ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
+
+[tool.hatch.build]
+include = [
+  "README.md",
+  "LICENSE",
+  "rpi_electronics_playground/**",
+]
 
 [tool.pytest.ini_options]
 addopts = [
@@ -141,6 +154,6 @@ pretty = true
 
 [[tool.mypy.overrides]]
 module = [
-    "numpy.*",
+    "RPi.*",
 ]
 ignore_missing_imports = true
