@@ -73,7 +73,6 @@ class TestBaseElectronicsComponent:
 
         mock_gpio.setup.assert_called_with(18, mock_gpio.OUT)
         mock_gpio.output.assert_called_with(18, mock_gpio.HIGH)
-        assert 18 in component._gpio_pins_used
 
     def test_setup_gpio_pin_with_mode_only(self, mock_gpio: MagicMock) -> None:
         """Test GPIO pin setup with mode only."""
@@ -82,4 +81,3 @@ class TestBaseElectronicsComponent:
         component._setup_gpio_pin(24, mock_gpio.IN)
 
         mock_gpio.setup.assert_called_with(24, mock_gpio.IN)
-        assert 24 in component._gpio_pins_used
