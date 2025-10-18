@@ -9,10 +9,10 @@ import pytest
 from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
-class TestComponent(BaseElectronicsComponent):
+class MockComponent(BaseElectronicsComponent):
     """Test implementation of BaseElectronicsComponent for testing."""
 
-    def __init__(self, name: str = "TestComponent") -> None:
+    def __init__(self, name: str = "MockComponent") -> None:
         """Initialize test component."""
         self.initialization_called = False
         self.cleanup_called = False
@@ -40,7 +40,7 @@ class TestBaseElectronicsComponent:
 
     def test_init(self, mock_gpio: MagicMock) -> None:
         """Test component initialization."""
-        component = TestComponent("TestDevice")
+        component = MockComponent("TestDevice")
 
         assert component.component_name == "TestDevice"
         assert component.is_initialized is True
@@ -50,7 +50,7 @@ class TestBaseElectronicsComponent:
 
     def test_gpio_pin_registration(self, mock_gpio: MagicMock) -> None:
         """Test GPIO pin registration functionality."""
-        component = TestComponent()
+        component = MockComponent()
 
         # Register some pins
         component._register_gpio_pin(18)
@@ -62,7 +62,7 @@ class TestBaseElectronicsComponent:
 
     def test_cleanup(self, mock_gpio: MagicMock) -> None:
         """Test component cleanup functionality."""
-        component = TestComponent()
+        component = MockComponent()
         component._register_gpio_pin(18)
         component._register_gpio_pin(24)
 
@@ -79,14 +79,14 @@ class TestBaseElectronicsComponent:
         """Test GPIO mode handling when already set."""
         mock_gpio.getmode.return_value = mock_gpio.BCM
 
-        TestComponent()
+        MockComponent()
 
         # Should not call setmode if already set
         mock_gpio.setmode.assert_not_called()
 
     def test_setup_gpio_pin_with_mode_and_state(self, mock_gpio: MagicMock) -> None:
         """Test GPIO pin setup with mode and initial state."""
-        component = TestComponent()
+        component = MockComponent()
 
         component._setup_gpio_pin(18, mock_gpio.OUT, initial=mock_gpio.HIGH)
 
@@ -96,7 +96,7 @@ class TestBaseElectronicsComponent:
 
     def test_setup_gpio_pin_with_mode_only(self, mock_gpio: MagicMock) -> None:
         """Test GPIO pin setup with mode only."""
-        component = TestComponent()
+        component = MockComponent()
 
         component._setup_gpio_pin(24, mock_gpio.IN)
 
