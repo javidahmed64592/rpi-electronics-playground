@@ -1,15 +1,13 @@
 """Servo motor control module for lock/unlock operations."""
 
-import logging
 import time
 
 from RPi import GPIO
 
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="[%d-%m-%Y|%H:%M:%S]", level=logging.INFO)
-logger = logging.getLogger(__name__)
+from .base_component import BaseElectronicsComponent
 
 
-class ServoMotor:
+class ServoMotor(BaseElectronicsComponent):
     """Class for controlling a servo motor as a lock mechanism."""
 
     def __init__(
@@ -39,7 +37,18 @@ class ServoMotor:
         self.pwm: GPIO.PWM | None = None
         self.is_locked = True
 
-        self._setup_gpio()
+        super().__init__("ServoMotor")
+
+    def _initialize_component(self) -> None:
+        """Initialize the servo motor hardware."""
+        self._ensure_gpio_mode_set()
+        self._setup_gpio_pin(self.pin, GPIO.OUT, GPIO.LOW)
+
+        if pwm := GPIO.PWM(self.pin, self.frequency):
+            self.pwm = pwm
+            self.pwm.start(0)
+
+        # Move to locked position
         self._lock()
 
     @staticmethod
@@ -52,17 +61,6 @@ class ServoMotor:
     ) -> int:
         """Map a value from one range to another."""
         return int((out_max - out_min) * (value - in_min) / (in_max - in_min) + out_min)
-
-    def _setup_gpio(self) -> None:
-        """Set up GPIO configuration for servo control."""
-        if GPIO.getmode() is None:
-            GPIO.setmode(GPIO.BCM)
-
-        GPIO.setup(self.pin, GPIO.OUT)
-        GPIO.output(self.pin, GPIO.LOW)
-        if pwm := GPIO.PWM(self.pin, self.frequency):
-            self.pwm = pwm
-            self.pwm.start(0)
 
     def _set_angle(self, angle: int) -> None:
         """Set the servo to a specific angle.
@@ -96,8 +94,8 @@ class ServoMotor:
         else:
             self._lock()
 
-    def cleanup(self) -> None:
-        """Clean up PWM resources (GPIO cleanup handled by main application)."""
+    def _cleanup_component(self) -> None:
+        """Clean up PWM resources."""
         if self.pwm:
             self.pwm.stop()
             self.pwm = None
@@ -105,29 +103,21 @@ class ServoMotor:
 
 def debug() -> None:
     """Demonstrate servo lock functionality."""
-    GPIO.setmode(GPIO.BCM)
-    logger.info("Standalone servo test - using BCM mode.")
+    with ServoMotor() as servo_lock:
+        try:
+            while True:
+                command = input("Enter command (lock/unlock/toggle/quit): ").strip().lower()
 
-    servo_lock = ServoMotor()
+                if command == "lock":
+                    servo_lock._lock()
+                elif command == "unlock":
+                    servo_lock._unlock()
+                elif command == "toggle":
+                    servo_lock.toggle()
+                elif command in ["quit", "q", "exit"]:
+                    break
+                else:
+                    servo_lock.logger.warning("Invalid command. Use: lock, unlock, toggle, or quit")
 
-    try:
-        while True:
-            command = input("Enter command (lock/unlock/toggle/quit): ").strip().lower()
-
-            if command == "lock":
-                servo_lock._lock()
-            elif command == "unlock":
-                servo_lock._unlock()
-            elif command == "toggle":
-                servo_lock.toggle()
-            elif command in ["quit", "q", "exit"]:
-                break
-            else:
-                logger.warning("Invalid command. Use: lock, unlock, toggle, or quit")
-
-    except KeyboardInterrupt:
-        logger.info("Exiting...")
-    finally:
-        servo_lock.cleanup()
-        GPIO.cleanup()
-        logger.info("Cleanup complete.")
+        except KeyboardInterrupt:
+            servo_lock.logger.info("Exiting...")

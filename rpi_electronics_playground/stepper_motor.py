@@ -1,15 +1,13 @@
 """Stepper motor control module for 28BYJ-48 with ULN2003 driver."""
 
-import logging
 import time
 
 from RPi import GPIO
 
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="[%d-%m-%Y|%H:%M:%S]", level=logging.INFO)
-logger = logging.getLogger(__name__)
+from .base_component import BaseElectronicsComponent
 
 
-class StepperMotor:
+class StepperMotor(BaseElectronicsComponent):
     """Class for controlling a 28BYJ-48 stepper motor with ULN2003 driver."""
 
     def __init__(
@@ -29,25 +27,21 @@ class StepperMotor:
         self.steps_per_revolution = steps_per_revolution
         self.step_speed = (60 / rpm) / steps_per_revolution
 
-        self._initialize_motor()
+        super().__init__("StepperMotor")
 
-    def _initialize_motor(self) -> None:
+    def _initialize_component(self) -> None:
         """Initialize the motor GPIO pins."""
-        try:
-            GPIO.setwarnings(False)
-            GPIO.setmode(GPIO.BCM)
-            for pin in self.motor_pins:
-                GPIO.setup(pin, GPIO.OUT)
-                GPIO.output(pin, GPIO.LOW)  # Ensure all pins start LOW
+        GPIO.setwarnings(False)
+        self._ensure_gpio_mode_set()
 
-            logger.info(
-                "Stepper motor initialized on pins %s at %d RPM",
-                self.motor_pins,
-                self.rpm,
-            )
-        except Exception:
-            logger.exception("Failed to initialize stepper motor!")
-            raise
+        for pin in self.motor_pins:
+            self._setup_gpio_pin(pin, GPIO.OUT, GPIO.LOW)
+
+        self.logger.info(
+            "Stepper motor initialized on pins %s at %d RPM",
+            self.motor_pins,
+            self.rpm,
+        )
 
     def _step_clockwise(self) -> None:
         """Execute one step in clockwise direction."""
@@ -69,11 +63,11 @@ class StepperMotor:
         :param int steps: Number of steps to rotate.
         """
         try:
-            logger.info("Rotating motor %d steps clockwise", steps)
+            self.logger.info("Rotating motor %d steps clockwise", steps)
             for _ in range(steps):
                 self._step_clockwise()
         except Exception:
-            logger.exception("Error during clockwise rotation!")
+            self.logger.exception("Error during clockwise rotation!")
             raise
 
     def rotate_counterclockwise(self, steps: int) -> None:
@@ -82,11 +76,11 @@ class StepperMotor:
         :param int steps: Number of steps to rotate.
         """
         try:
-            logger.info("Rotating motor %d steps counterclockwise", steps)
+            self.logger.info("Rotating motor %d steps counterclockwise", steps)
             for _ in range(steps):
                 self._step_counterclockwise()
         except Exception:
-            logger.exception("Error during counterclockwise rotation!")
+            self.logger.exception("Error during counterclockwise rotation!")
             raise
 
     def rotate_degrees_clockwise(self, degrees: float) -> None:
@@ -110,46 +104,38 @@ class StepperMotor:
         try:
             for pin in self.motor_pins:
                 GPIO.output(pin, GPIO.LOW)
-            logger.info("Motor stopped")
+            self.logger.info("Motor stopped")
         except Exception:
-            logger.exception("Error stopping motor!")
+            self.logger.exception("Error stopping motor!")
 
-    def cleanup(self) -> None:
-        """Clean up GPIO resources."""
-        try:
-            self.stop()
-            logger.info("Stepper motor cleanup complete.")
-        except Exception:
-            logger.exception("Error during stepper motor cleanup!")
+    def _cleanup_component(self) -> None:
+        """Clean up stepper motor resources."""
+        self.stop()
 
 
 def debug() -> None:
     """Demonstrate stepper motor functionality with various movements."""
-    motor = StepperMotor(rpm=10)  # Slower speed for demonstration
+    with StepperMotor(rpm=10) as motor:  # Slower speed for demonstration
+        try:
+            motor.logger.info("Starting stepper motor demonstration...")
 
-    try:
-        logger.info("Starting stepper motor demonstration...")
+            # Test quarter revolution clockwise
+            motor.logger.info("Quarter revolution clockwise...")
+            motor.rotate_degrees_clockwise(90)
+            time.sleep(1)
 
-        # Test quarter revolution clockwise
-        logger.info("Quarter revolution clockwise...")
-        motor.rotate_degrees_clockwise(90)
-        time.sleep(1)
+            # Test quarter revolution counterclockwise
+            motor.logger.info("Quarter revolution counterclockwise...")
+            motor.rotate_degrees_counterclockwise(90)
+            time.sleep(1)
 
-        # Test quarter revolution counterclockwise
-        logger.info("Quarter revolution counterclockwise...")
-        motor.rotate_degrees_counterclockwise(90)
-        time.sleep(1)
+            # Test specific step count
+            motor.logger.info("100 steps counterclockwise...")
+            motor.rotate_counterclockwise(100)
 
-        # Test specific step count
-        logger.info("100 steps counterclockwise...")
-        motor.rotate_counterclockwise(100)
+            motor.logger.info("Demo complete!")
 
-        logger.info("Demo complete!")
-
-    except KeyboardInterrupt:
-        logger.info("Demo interrupted by user")
-    except Exception:
-        logger.exception("Error during demonstration!")
-    finally:
-        motor.cleanup()
-        GPIO.cleanup()
+        except KeyboardInterrupt:
+            motor.logger.info("Demo interrupted by user")
+        except Exception:
+            motor.logger.exception("Error during demonstration!")
