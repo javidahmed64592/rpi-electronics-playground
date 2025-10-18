@@ -37,32 +37,24 @@ def mock_gpio() -> Generator[MagicMock, None, None]:
 class TestBaseElectronicsComponent:
     """Unit tests for the BaseElectronicsComponent class."""
 
-    def test_gpio_pin_registration(self, mock_gpio: MagicMock) -> None:
-        """Test GPIO pin registration functionality."""
+    def test_initialization(self, mock_gpio: MagicMock) -> None:
+        """Test component initialization."""
         component = MockComponent()
 
-        # Register some pins
-        component._register_gpio_pin(18)
-        component._register_gpio_pin(24)
-
-        assert 18 in component._gpio_pins_used
-        assert 24 in component._gpio_pins_used
-        assert len(component._gpio_pins_used) == 2
+        assert component.is_initialized is True
+        assert component.initialization_called is True
+        assert component.component_name == "MockComponent"
 
     def test_cleanup(self, mock_gpio: MagicMock) -> None:
         """Test component cleanup functionality."""
         component = MockComponent()
-        component._register_gpio_pin(18)
-        component._register_gpio_pin(24)
 
         component.cleanup()
 
-        # The new base component cleans up individual pins instead of calling GPIO.cleanup()
+        # Should call component-specific cleanup and GPIO.cleanup()
         assert component.cleanup_called is True
         assert component.is_initialized is False
-        # Should call GPIO.setup for each pin to set to safe input mode
-        mock_gpio.setup.assert_called()
-        mock_gpio.output.assert_called()
+        mock_gpio.cleanup.assert_called_once()
 
     def test_gpio_mode_already_set(self, mock_gpio: MagicMock) -> None:
         """Test GPIO mode handling when already set."""

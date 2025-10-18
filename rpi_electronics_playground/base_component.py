@@ -23,7 +23,6 @@ class BaseElectronicsComponent(ABC):
         self.component_name = component_name
         self.logger = self._setup_logger()
         self.is_initialized = False
-        self._gpio_pins_used: set[int] = set()
 
         try:
             self._initialize_component()
@@ -61,13 +60,6 @@ class BaseElectronicsComponent(ABC):
     def _initialize_component(self) -> None:
         """Initialize the specific component. Must be implemented by subclasses."""
 
-    def _register_gpio_pin(self, pin: int) -> None:
-        """Register a GPIO pin as being used by this component.
-
-        :param int pin: The GPIO pin number.
-        """
-        self._gpio_pins_used.add(pin)
-
     def _setup_gpio_pin(
         self,
         pin: int,
@@ -84,7 +76,6 @@ class BaseElectronicsComponent(ABC):
             GPIO.setup(pin, mode)
             if mode == GPIO.OUT and initial is not None:
                 GPIO.output(pin, initial)
-            self._register_gpio_pin(pin)
             self.logger.debug("GPIO pin %d configured as %s", pin, "OUTPUT" if mode == GPIO.OUT else "INPUT")
         except Exception:
             self.logger.exception("Failed to setup GPIO pin %d", pin)
@@ -97,7 +88,7 @@ class BaseElectronicsComponent(ABC):
             self.logger.debug("GPIO mode set to BCM")
 
     def cleanup(self) -> None:
-        """Clean up component resources including GPIO pins."""
+        """Clean up component resources."""
         if not self.is_initialized:
             self.logger.debug("Component %s was not initialized, skipping cleanup", self.component_name)
             return
@@ -106,16 +97,8 @@ class BaseElectronicsComponent(ABC):
             # Allow subclass-specific cleanup
             self._cleanup_component()
 
-            # Clean up GPIO pins used by this component
-            if self._gpio_pins_used:
-                for pin in self._gpio_pins_used:
-                    try:
-                        GPIO.setup(pin, GPIO.IN)  # Set to safe input mode
-                        GPIO.output(pin, GPIO.LOW)  # Ensure low output
-                    except Exception as pin_error:
-                        self.logger.warning("Failed to cleanup GPIO pin %d: %s", pin, pin_error)
-
-                self.logger.debug("Cleaned up GPIO pins: %s", sorted(self._gpio_pins_used))
+            # Clean up all GPIO pins
+            GPIO.cleanup()
 
             self.is_initialized = False
             self.logger.info("%s cleanup complete", self.component_name)

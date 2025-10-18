@@ -172,3 +172,4 @@ class TestServoMotor:
 
         mock_pwm.stop.assert_called_once()
         assert servo.pwm is None
+        mock_gpio.cleanup.assert_called_once()
