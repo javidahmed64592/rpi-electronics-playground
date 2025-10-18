@@ -25,26 +25,6 @@ def mock_sleep() -> Generator[MagicMock, None, None]:
         yield mock
 
 
-@pytest.fixture
-def mock_input() -> Generator[MagicMock, None, None]:
-    """Fixture to mock builtins.input."""
-    with patch("builtins.input") as mock:
-        yield mock
-
-
-@pytest.fixture
-def mock_servo_class() -> Generator[tuple[MagicMock, MagicMock], None, None]:
-    """Fixture to mock ServoMotor class for debug function tests."""
-    with patch("rpi_electronics_playground.servo_motor.ServoMotor") as mock:
-        mock_servo = MagicMock()
-        mock_servo._lock = MagicMock()
-        mock_servo._unlock = MagicMock()
-        mock_servo.toggle = MagicMock()
-        mock_servo.cleanup = MagicMock()
-        mock.return_value = mock_servo
-        yield mock, mock_servo
-
-
 class TestServoMotor:
     """Unit tests for the ServoMotor class."""
 
