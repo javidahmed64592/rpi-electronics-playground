@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class LCD1602:
     """Class for controlling an LCD1602 display via I2C interface."""
 
-    def __init__(self, address: int = 0x27, backlight: bool = True, bus_number: int = 1) -> None:  # noqa: FBT001, FBT002
+    def __init__(self, address: int = 0x27, backlight: bool = True, bus_number: int = 1) -> None:
         """Initialize the LCD1602 display.
 
         :param int address: I2C address of the LCD display.
@@ -126,7 +126,7 @@ class LCD1602:
         except Exception:
             logger.exception("Error writing text to LCD display!")
 
-    def set_backlight(self, enabled: bool) -> None:  # noqa: FBT001
+    def set_backlight(self, enabled: bool) -> None:
         """Enable or disable the LCD backlight.
 
         :param bool enabled: True to enable backlight, False to disable.
@@ -140,17 +140,11 @@ class LCD1602:
     def cleanup(self) -> None:
         """Clean up I2C bus resources."""
         try:
+            self.set_backlight(False)
             self.bus.close()
             logger.info("LCD1602 cleanup complete.")
         except Exception:
             logger.exception("Error during LCD cleanup!")
-
-
-def turn_off() -> None:
-    """Turn off the LCD display."""
-    lcd = LCD1602(address=0x27, backlight=True)
-    lcd.clear()
-    lcd.set_backlight(False)
 
 
 def debug() -> None:

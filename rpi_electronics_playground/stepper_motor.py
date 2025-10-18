@@ -34,7 +34,7 @@ class StepperMotor:
     def _initialize_motor(self) -> None:
         """Initialize the motor GPIO pins."""
         try:
-            GPIO.setwarnings(False)  # noqa: FBT003
+            GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BCM)
             for pin in self.motor_pins:
                 GPIO.setup(pin, GPIO.OUT)

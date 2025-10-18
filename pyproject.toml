@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+    "mfrc522>=0.0.7",
     "RPi.GPIO>=0.7.1",
     "smbus2",
 ]
@@ -35,11 +36,9 @@ dev = [
 repository = "https://github.com/javidahmed64592/rpi-electronics-playground"
 
 [project.scripts]
-main = "rpi_electronics_playground.main:run"
-lcd-off = "rpi_electronics_playground.lcd:turn_off"
 lcd-debug = "rpi_electronics_playground.lcd:debug"
-ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
 stepper-debug = "rpi_electronics_playground.stepper_motor:debug"
+ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
 
 [tool.hatch.build]
 include = [
@@ -104,7 +103,6 @@ select = [
     "E",
     "EM",
     "F",
-    "FBT",
     "G",
     "I",
     "ISC",
@@ -155,6 +153,8 @@ pretty = true
 
 [[tool.mypy.overrides]]
 module = [
+    "mfrc522.*",
     "RPi.*",
+    "smbus2.*"
 ]
 ignore_missing_imports = true

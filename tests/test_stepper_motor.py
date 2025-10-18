@@ -37,7 +37,7 @@ class TestStepperMotor:
         assert motor.step_speed == (60 / 15) / 2048
 
         # Verify GPIO setup
-        mock_gpio.setwarnings.assert_called_with(False)  # noqa: FBT003
+        mock_gpio.setwarnings.assert_called_with(False)
         mock_gpio.setmode.assert_called_with(mock_gpio.BCM)
 
         # Check that each pin was set up correctly
