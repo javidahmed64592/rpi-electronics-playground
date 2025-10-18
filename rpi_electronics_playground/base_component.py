@@ -119,6 +119,7 @@ class BaseElectronicsComponent(ABC):
             self.logger.exception("Error during %s cleanup", self.component_name)
             raise
 
+    @abstractmethod
     def _cleanup_component(self) -> None:
         """Perform component-specific cleanup. Override in subclasses if needed."""
         # Default implementation does nothing - subclasses can override
