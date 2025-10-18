@@ -10,35 +10,12 @@ from rpi_electronics_playground.rfid_reader import RFIDReader
 
 
 @pytest.fixture
-def mock_sleep() -> Generator[MagicMock, None, None]:
-    """Fixture to mock time.sleep."""
-    with patch("rpi_electronics_playground.rfid_reader.time.sleep") as mock:
-        yield mock
-
-
-@pytest.fixture
-def mock_rfid_reader() -> Generator[MagicMock, None, None]:
-    """Fixture to mock RFIDReader class."""
-    with patch("rpi_electronics_playground.rfid_reader.RFIDReader") as mock:
-        mock_reader = MagicMock()
-        mock.return_value = mock_reader
-        yield mock_reader
-
-
-@pytest.fixture
 def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
     """Fixture to mock SimpleMFRC522."""
     with patch("rpi_electronics_playground.rfid_reader.SimpleMFRC522") as mock:
         mock_reader = MagicMock()
         mock.return_value = mock_reader
         yield mock_reader
-
-
-@pytest.fixture
-def mock_gpio() -> Generator[MagicMock, None, None]:
-    """Fixture to mock GPIO module."""
-    with patch("rpi_electronics_playground.rfid_reader.GPIO") as mock:
-        yield mock
 
 
 class TestRFIDReader:

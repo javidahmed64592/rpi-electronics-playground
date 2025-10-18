@@ -37,6 +37,8 @@ repository = "https://github.com/javidahmed64592/rpi-electronics-playground"
 
 [project.scripts]
 lcd-debug = "rpi_electronics_playground.lcd:debug"
+rfid-debug = "rpi_electronics_playground.rfid_reader:debug"
+servo-debug = "rpi_electronics_playground.servo_motor:debug"
 stepper-debug = "rpi_electronics_playground.stepper_motor:debug"
 ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
 
@@ -134,6 +136,9 @@ unfixable = []
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR2004"]
 
 [tool.ruff.format]
 quote-style = "double"

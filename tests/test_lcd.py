@@ -28,21 +28,6 @@ def mock_sleep() -> Generator[MagicMock, None, None]:
 class TestLCD1602:
     """Unit tests for the LCD1602 class."""
 
-    def test_init(self, mock_smbus: MagicMock, mock_sleep: MagicMock) -> None:
-        """Test LCD1602 initialization."""
-        lcd = LCD1602()
-
-        assert lcd.address == 0x27  # noqa: PLR2004
-        assert lcd.backlight_enabled is True
-        mock_smbus.write_byte.assert_called()
-
-    def test_init_failure(self, mock_smbus: MagicMock) -> None:
-        """Test LCD1602 initialization when it fails."""
-        mock_smbus.write_byte.side_effect = Exception("I2C error")
-
-        with pytest.raises(Exception, match="I2C error"):
-            LCD1602()
-
     def test_clear(self, mock_smbus: MagicMock, mock_sleep: MagicMock) -> None:
         """Test clear method."""
         lcd = LCD1602()

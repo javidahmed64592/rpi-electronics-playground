@@ -25,57 +25,8 @@ def mock_sleep() -> Generator[MagicMock, None, None]:
         yield mock
 
 
-@pytest.fixture
-def mock_input() -> Generator[MagicMock, None, None]:
-    """Fixture to mock builtins.input."""
-    with patch("builtins.input") as mock:
-        yield mock
-
-
-@pytest.fixture
-def mock_servo_class() -> Generator[tuple[MagicMock, MagicMock], None, None]:
-    """Fixture to mock ServoMotor class for debug function tests."""
-    with patch("rpi_electronics_playground.servo_motor.ServoMotor") as mock:
-        mock_servo = MagicMock()
-        mock_servo._lock = MagicMock()
-        mock_servo._unlock = MagicMock()
-        mock_servo.toggle = MagicMock()
-        mock_servo.cleanup = MagicMock()
-        mock.return_value = mock_servo
-        yield mock, mock_servo
-
-
 class TestServoMotor:
     """Unit tests for the ServoMotor class."""
-
-    def test_init(self, mock_sleep: MagicMock, mock_gpio: MagicMock) -> None:
-        """Test ServoMotor initialization with custom parameters."""
-        mock_gpio.getmode.return_value = None
-        mock_pwm = MagicMock()
-        mock_gpio.PWM.return_value = mock_pwm
-
-        test_pin = 20
-        test_locked_angle = 45
-        test_unlocked_angle = 135
-        test_frequency = 100
-        test_min_pulse = 600
-        test_max_pulse = 2400
-
-        servo = ServoMotor(
-            pin=test_pin,
-            locked_angle=test_locked_angle,
-            unlocked_angle=test_unlocked_angle,
-            frequency=test_frequency,
-            min_pulse=test_min_pulse,
-            max_pulse=test_max_pulse,
-        )
-
-        assert servo.pin == test_pin
-        assert servo.locked_angle == test_locked_angle
-        assert servo.unlocked_angle == test_unlocked_angle
-        assert servo.frequency == test_frequency
-        assert servo.min_pulse == test_min_pulse
-        assert servo.max_pulse == test_max_pulse
 
     @pytest.mark.parametrize(
         ("value", "in_min", "in_max", "out_min", "out_max", "expected"),

@@ -1,17 +1,15 @@
 """Ultrasonic sensor control module for HC-SR04."""
 
-import logging
 import statistics
 import time
 from collections import deque
 
 from RPi import GPIO
 
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="[%d-%m-%Y|%H:%M:%S]", level=logging.INFO)
-logger = logging.getLogger(__name__)
+from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
-class UltrasonicSensor:
+class UltrasonicSensor(BaseElectronicsComponent):
     """Class for controlling an HC-SR04 ultrasonic sensor with improved accuracy."""
 
     def __init__(
@@ -40,22 +38,15 @@ class UltrasonicSensor:
         self.readings_buffer: deque[float] = deque(maxlen=filter_size)
         self.last_stable_reading: float | None = None
 
-        self._initialize_sensor()
+        super().__init__("UltrasonicSensor")
 
-    def _initialize_sensor(self) -> None:
+    def _initialize_component(self) -> None:
         """Initialize the sensor GPIO pins."""
-        try:
-            GPIO.setmode(GPIO.BCM)
-            GPIO.setup(self.trig_pin, GPIO.OUT)
-            GPIO.setup(self.echo_pin, GPIO.IN)
+        self._ensure_gpio_mode_set()
+        self._setup_gpio_pin(self.trig_pin, GPIO.OUT, GPIO.LOW)
+        self._setup_gpio_pin(self.echo_pin, GPIO.IN)
 
-            # Ensure trigger is low initially
-            GPIO.output(self.trig_pin, GPIO.LOW)
-
-            logger.info("Ultrasonic sensor initialized on pins TRIG=%d, ECHO=%d", self.trig_pin, self.echo_pin)
-        except Exception:
-            logger.exception("Failed to initialize ultrasonic sensor!")
-            raise
+        self.logger.info("Ultrasonic sensor initialized on pins TRIG=%d, ECHO=%d", self.trig_pin, self.echo_pin)
 
     def _get_single_distance(self) -> float:
         """Get a single distance measurement.
@@ -154,13 +145,13 @@ class UltrasonicSensor:
                 time.sleep(0.01)
 
             if len(valid_readings) == 0:
-                logger.warning("No valid readings for distance measurement")
+                self.logger.warning("No valid readings for distance measurement")
                 return -1.0
 
             if len(valid_readings) == 1:
                 # Single reading - use it but mark as less reliable
                 filtered_distance = valid_readings[0]
-                logger.debug("Using single reading: %.1f cm", filtered_distance)
+                self.logger.debug("Using single reading: %.1f cm", filtered_distance)
             else:
                 # Multiple readings - use median for robustness
                 filtered_distance = statistics.median(valid_readings)
@@ -179,39 +170,32 @@ class UltrasonicSensor:
             return float(round(filtered_distance, 1))
 
         except Exception:
-            logger.exception("Error measuring distance!")
+            self.logger.exception("Error measuring distance!")
             return -1.0
 
-    def cleanup(self) -> None:
-        """Clean up GPIO resources."""
-        try:
-            logger.info("Ultrasonic sensor cleanup complete.")
-        except Exception:
-            logger.exception("Error during ultrasonic sensor cleanup!")
+    def _cleanup_component(self) -> None:
+        """Clean up ultrasonic sensor resources."""
+        # No specific cleanup needed for ultrasonic sensor
 
 
 def debug() -> None:
     """Demonstrate ultrasonic sensor functionality with accuracy improvements."""
-    sensor = UltrasonicSensor(trig_pin=5, echo_pin=6, sample_count=3, filter_size=5)
+    with UltrasonicSensor(trig_pin=5, echo_pin=6, sample_count=3, filter_size=5) as sensor:
+        try:
+            sensor.logger.info("Starting enhanced distance measurements...")
+            sensor.logger.info(
+                "Using %d samples per reading with %d-point moving average", sensor.sample_count, sensor.filter_size
+            )
 
-    try:
-        logger.info("Starting enhanced distance measurements...")
-        logger.info(
-            "Using %d samples per reading with %d-point moving average", sensor.sample_count, sensor.filter_size
-        )
+            for i in range(15):
+                distance = sensor.get_distance()
+                if distance >= 0:
+                    sensor.logger.info("Measurement %d: Distance = %.1f cm", i + 1, distance)
+                else:
+                    sensor.logger.warning("Measurement %d: Failed to get reading", i + 1)
+                time.sleep(1.0)
 
-        for i in range(15):
-            distance = sensor.get_distance()
-            if distance >= 0:
-                logger.info("Measurement %d: Distance = %.1f cm", i + 1, distance)
-            else:
-                logger.warning("Measurement %d: Failed to get reading", i + 1)
-            time.sleep(1.0)
+            sensor.logger.info("Demo complete!")
 
-        logger.info("Demo complete!")
-
-    except KeyboardInterrupt:
-        logger.info("Exiting...")
-    finally:
-        sensor.cleanup()
-        GPIO.cleanup()
+        except KeyboardInterrupt:
+            sensor.logger.info("Exiting...")

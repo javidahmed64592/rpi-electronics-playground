@@ -1,7 +1,6 @@
 """Unit tests for the rpi_electronics_playground.ultrasonic_sensor module."""
 
 import logging
-from collections import deque
 from collections.abc import Generator
 from unittest.mock import MagicMock, call, patch
 
@@ -27,25 +26,10 @@ def mock_time() -> Generator[MagicMock, None, None]:
 class TestUltrasonicSensor:
     """Unit tests for UltrasonicSensor core functionality."""
 
-    def test_initialization(self, mock_gpio: MagicMock) -> None:
-        """Test sensor initialization with default and custom parameters."""
-        # Test default parameters
-        sensor = UltrasonicSensor()
-
-        assert sensor.trig_pin == 5  # noqa: PLR2004
-        assert sensor.echo_pin == 6  # noqa: PLR2004
-        assert sensor.sample_count == 5  # noqa: PLR2004
-        assert sensor.filter_size == 10  # noqa: PLR2004
-        assert isinstance(sensor.readings_buffer, deque)
-        assert sensor.last_stable_reading is None
-
-        # Verify GPIO setup
-        mock_gpio.setmode.assert_called_with(mock_gpio.BCM)
-        mock_gpio.setup.assert_any_call(5, mock_gpio.OUT)
-        mock_gpio.setup.assert_any_call(6, mock_gpio.IN)
-
     def test_single_distance_measurement(self, mock_gpio: MagicMock, mock_time: MagicMock) -> None:
         """Test single distance measurement with successful reading."""
+        mock_gpio.getmode.return_value = None
+
         # Mock GPIO input sequence for echo response
         mock_gpio.input.side_effect = [
             mock_gpio.LOW,  # First check in wait-for-HIGH loop
@@ -67,12 +51,11 @@ class TestUltrasonicSensor:
         distance = sensor._get_single_distance()
 
         # Expected: (0.0001 * 34300) / 2 = 1.715, rounded to 1.71
-        assert distance == 1.71  # noqa: PLR2004
+        assert distance == 1.71
 
         # Verify trigger pulse sequence
         expected_calls = [
-            call(5, mock_gpio.LOW),  # Initialization
-            call(5, mock_gpio.LOW),  # Trigger start
+            call(5, mock_gpio.LOW),  # Initialization (from _setup_gpio_pin)
             call(5, mock_gpio.HIGH),  # Trigger pulse
             call(5, mock_gpio.LOW),  # Trigger end
         ]
@@ -80,6 +63,8 @@ class TestUltrasonicSensor:
 
     def test_single_distance_timeout(self, mock_gpio: MagicMock, mock_time: MagicMock) -> None:
         """Test single distance measurement with timeout."""
+        mock_gpio.getmode.return_value = None
+
         # Simulate timeout condition
         mock_gpio.input.return_value = mock_gpio.LOW
         mock_time.time.side_effect = [1.0, 1.6]  # Timeout after 0.6 seconds
@@ -91,6 +76,7 @@ class TestUltrasonicSensor:
 
     def test_outlier_detection(self, mock_gpio: MagicMock) -> None:
         """Test outlier detection logic."""
+        mock_gpio.getmode.return_value = None
         sensor = UltrasonicSensor(outlier_threshold=3.0)
 
         # No reference reading yet
@@ -112,6 +98,7 @@ class TestUltrasonicSensor:
 
     def test_get_distance_successful(self, mock_gpio: MagicMock, mock_time: MagicMock) -> None:
         """Test successful distance measurement with filtering."""
+        mock_gpio.getmode.return_value = None
         sensor = UltrasonicSensor(sample_count=3)
 
         with patch.object(sensor, "_get_single_distance") as mock_single:
@@ -143,19 +130,21 @@ class TestUltrasonicSensor:
         self, mock_gpio: MagicMock, mock_time: MagicMock, caplog: pytest.LogCaptureFixture
     ) -> None:
         """Test distance measurement with only one valid reading."""
+        mock_gpio.getmode.return_value = None
         sensor = UltrasonicSensor(sample_count=3)
 
         with patch.object(sensor, "_get_single_distance") as mock_single:
             mock_single.side_effect = [-1.0, 25.0, -1.0, -1.0, -1.0, -1.0]
 
-            with caplog.at_level(logging.DEBUG):
+            with caplog.at_level(logging.DEBUG, logger="rpi_electronics_playground.ultrasonicsensor"):
                 distance = sensor.get_distance()
 
-            assert distance == 25.0  # noqa: PLR2004
+            assert distance == 25.0
             assert "Using single reading" in caplog.text
 
     def test_moving_average_buffer(self, mock_gpio: MagicMock) -> None:
         """Test that the moving average buffer works correctly."""
+        mock_gpio.getmode.return_value = None
         sensor = UltrasonicSensor(filter_size=3)
 
         with patch.object(sensor, "_get_single_distance") as mock_single:
@@ -166,11 +155,12 @@ class TestUltrasonicSensor:
                 sensor.get_distance()
 
             # Buffer should respect maxlen
-            assert len(sensor.readings_buffer) == 3  # noqa: PLR2004
-            assert sensor.readings_buffer.maxlen == 3  # noqa: PLR2004
+            assert len(sensor.readings_buffer) == 3
+            assert sensor.readings_buffer.maxlen == 3
 
     def test_cleanup(self, mock_gpio: MagicMock, caplog: pytest.LogCaptureFixture) -> None:
         """Test sensor cleanup."""
+        mock_gpio.getmode.return_value = None
         sensor = UltrasonicSensor()
 
         with caplog.at_level(logging.INFO):

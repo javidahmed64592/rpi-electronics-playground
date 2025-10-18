@@ -1,20 +1,21 @@
 """RFID reader/writer module for MFRC522."""
 
-import logging
 import time
 
 from mfrc522 import SimpleMFRC522
-from RPi import GPIO
 
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="[%d-%m-%Y|%H:%M:%S]", level=logging.INFO)
-logger = logging.getLogger(__name__)
+from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
-class RFIDReader:
+class RFIDReader(BaseElectronicsComponent):
     """Class for handling RFID operations using MFRC522."""
 
     def __init__(self) -> None:
         """Initialize the RFID reader."""
+        super().__init__("RFIDReader")
+
+    def _initialize_component(self) -> None:
+        """Initialize the RFID reader hardware."""
         self.reader = SimpleMFRC522()
 
     def read_card(self) -> tuple[int, str] | None:
@@ -25,7 +26,7 @@ class RFIDReader:
         try:
             return self.reader.read()  # type: ignore[no-any-return]
         except Exception:
-            logger.exception("Error reading card!")
+            self.logger.exception("Error reading card!")
             return None
 
     def write_card(self, text: str) -> bool:
@@ -37,29 +38,31 @@ class RFIDReader:
         try:
             self.reader.write(text)
         except Exception:
-            logger.exception("Error writing to card!")
+            self.logger.exception("Error writing to card!")
             return False
         else:
             return True
 
+    def _cleanup_component(self) -> None:
+        """Clean up RFID reader resources."""
+        # The MFRC522 library doesn't require specific cleanup,
+        # but we ensure GPIO cleanup is handled by the base class
+
 
 def debug() -> None:
     """Debug function to test RFID reader/writer functionality."""
-    rfid = RFIDReader()
+    with RFIDReader() as rfid:
+        try:
+            while True:
+                rfid.logger.info("Place an RFID card near the reader...")
+                result = rfid.read_card()
+                if result:
+                    card_id, text = result
+                    rfid.logger.info("Read from card - ID: %s, Text: %s", card_id, text.strip())
 
-    try:
-        while True:
-            logger.info("Place an RFID card near the reader...")
-            result = rfid.read_card()
-            if result:
-                card_id, text = result
-                logger.info("Read from card - ID: %s, Text: %s", card_id, text.strip())
-
-                new_text = str(input("Enter new text to write to the card: "))
-                if rfid.write_card(new_text):
-                    logger.info("Wrote to card - New Text: %s", new_text)
-            time.sleep(2)
-    except KeyboardInterrupt:
-        logger.info("Exiting RFID debug mode.")
-    finally:
-        GPIO.cleanup()
+                    new_text = str(input("Enter new text to write to the card: "))
+                    if rfid.write_card(new_text):
+                        rfid.logger.info("Wrote to card - New Text: %s", new_text)
+                time.sleep(2)
+        except KeyboardInterrupt:
+            rfid.logger.info("Exiting RFID debug mode.")

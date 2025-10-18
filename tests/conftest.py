@@ -87,10 +87,27 @@ class MockSMBus:
         pass
 
 
+class MockSimpleMFRC522:
+    """Mock SimpleMFRC522 class for RFID operations."""
+
+    def __init__(self) -> None:
+        """Initialize mock RFID reader."""
+        pass
+
+    def read(self) -> tuple[int, str]:
+        """Mock read method."""
+        return (123456789, "test_data")
+
+    def write(self, text: str) -> None:
+        """Mock write method."""
+        pass
+
+
 mock_modules = {
     "RPi": MagicMock(),
     "RPi.GPIO": MockGPIO(),
     "smbus2": MagicMock(SMBus=MockSMBus),
+    "mfrc522": MagicMock(SimpleMFRC522=MockSimpleMFRC522),
 }
 
 for module_name, mock_module in mock_modules.items():
