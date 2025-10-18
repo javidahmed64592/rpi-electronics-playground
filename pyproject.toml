@@ -37,6 +37,8 @@ repository = "https://github.com/javidahmed64592/rpi-electronics-playground"
 
 [project.scripts]
 lcd-debug = "rpi_electronics_playground.lcd:debug"
+rfid-debug = "rpi_electronics_playground.rfid_reader:debug"
+servo-debug = "rpi_electronics_playground.servo_motor:debug"
 stepper-debug = "rpi_electronics_playground.stepper_motor:debug"
 ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
 
