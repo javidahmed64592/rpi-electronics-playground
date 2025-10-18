@@ -5,7 +5,7 @@ import time
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
 
-from .base_component import BaseElectronicsComponent
+from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
 class RFIDReader(BaseElectronicsComponent):

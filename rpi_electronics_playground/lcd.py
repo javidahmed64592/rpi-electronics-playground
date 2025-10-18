@@ -4,7 +4,7 @@ import time
 
 import smbus2 as smbus
 
-from .base_component import BaseElectronicsComponent
+from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
 class LCD1602(BaseElectronicsComponent):

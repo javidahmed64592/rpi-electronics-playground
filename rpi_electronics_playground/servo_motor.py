@@ -4,7 +4,7 @@ import time
 
 from RPi import GPIO
 
-from .base_component import BaseElectronicsComponent
+from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
 class ServoMotor(BaseElectronicsComponent):

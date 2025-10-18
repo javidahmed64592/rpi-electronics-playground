@@ -6,7 +6,7 @@ from collections import deque
 
 from RPi import GPIO
 
-from .base_component import BaseElectronicsComponent
+from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
 
 class UltrasonicSensor(BaseElectronicsComponent):
