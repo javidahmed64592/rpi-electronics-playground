@@ -28,7 +28,7 @@ def mock_rfid_reader() -> Generator[MagicMock, None, None]:
 @pytest.fixture
 def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
     """Fixture to mock SimpleMFRC522."""
-    with patch("rfid_servo_lock.rfid.SimpleMFRC522") as mock:
+    with patch("rpi_electronics_playground.rfid_reader.SimpleMFRC522") as mock:
         mock_reader = MagicMock()
         mock.return_value = mock_reader
         yield mock_reader
@@ -37,7 +37,7 @@ def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
 @pytest.fixture
 def mock_gpio() -> Generator[MagicMock, None, None]:
     """Fixture to mock GPIO module."""
-    with patch("rfid_servo_lock.rfid.GPIO") as mock:
+    with patch("rpi_electronics_playground.rfid_reader.GPIO") as mock:
         yield mock
 
 

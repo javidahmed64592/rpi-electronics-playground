@@ -125,9 +125,9 @@ class TestServoMotor:
     )
     def test_lock(
         self,
-        initial_locked_state: bool,  # noqa: FBT001
-        expected_locked_state: bool,  # noqa: FBT001
-        should_call_pwm: bool,  # noqa: FBT001
+        initial_locked_state: bool,
+        expected_locked_state: bool,
+        should_call_pwm: bool,
         mock_sleep: MagicMock,
         mock_gpio: MagicMock,
     ) -> None:
@@ -159,9 +159,9 @@ class TestServoMotor:
     )
     def test_unlock(
         self,
-        initial_locked_state: bool,  # noqa: FBT001
-        expected_locked_state: bool,  # noqa: FBT001
-        should_call_pwm: bool,  # noqa: FBT001
+        initial_locked_state: bool,
+        expected_locked_state: bool,
+        should_call_pwm: bool,
         mock_sleep: MagicMock,
         mock_gpio: MagicMock,
     ) -> None:
@@ -193,8 +193,8 @@ class TestServoMotor:
     )
     def test_toggle(
         self,
-        initial_locked_state: bool,  # noqa: FBT001
-        expected_locked_state: bool,  # noqa: FBT001
+        initial_locked_state: bool,
+        expected_locked_state: bool,
         mock_sleep: MagicMock,
         mock_gpio: MagicMock,
     ) -> None:
