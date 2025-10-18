@@ -23,7 +23,7 @@ class RFIDReader:
         :return: Tuple of (card_id, text) if card is detected, None otherwise.
         """
         try:
-            return self.reader.read()
+            return self.reader.read()  # type: ignore[no-any-return]
         except Exception:
             logger.exception("Error reading card!")
             return None
