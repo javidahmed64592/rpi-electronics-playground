@@ -140,17 +140,11 @@ class LCD1602:
     def cleanup(self) -> None:
         """Clean up I2C bus resources."""
         try:
+            self.set_backlight(False)
             self.bus.close()
             logger.info("LCD1602 cleanup complete.")
         except Exception:
             logger.exception("Error during LCD cleanup!")
-
-
-def turn_off() -> None:
-    """Turn off the LCD display."""
-    lcd = LCD1602(address=0x27, backlight=True)
-    lcd.clear()
-    lcd.set_backlight(False)
 
 
 def debug() -> None:
