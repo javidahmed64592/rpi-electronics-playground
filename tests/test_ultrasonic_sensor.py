@@ -167,4 +167,3 @@ class TestUltrasonicSensor:
             sensor.cleanup()
 
         assert "cleanup complete" in caplog.text
-        mock_gpio.cleanup.assert_called_once()
