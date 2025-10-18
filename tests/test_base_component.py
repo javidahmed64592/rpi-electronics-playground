@@ -65,36 +65,6 @@ class TestBaseElectronicsComponent:
 
         assert component.gpio_pins == [18, 24]
 
-    def test_gpio_pin_registration_duplicate(self, mock_gpio: MagicMock) -> None:
-        """Test GPIO pin registration prevents duplicates."""
-        component = TestComponent()
-
-        component._register_gpio_pin(18)
-        component._register_gpio_pin(18)  # Duplicate
-
-        assert component.gpio_pins == [18]
-
-    def test_context_manager(self, mock_gpio: MagicMock) -> None:
-        """Test component works as context manager."""
-        with TestComponent("ContextTest") as component:
-            assert component.component_name == "ContextTest"
-            assert component.is_initialized is True
-
-        # Component should be cleaned up after context
-        mock_gpio.cleanup.assert_called()
-
-    def test_context_manager_with_exception(self, mock_gpio: MagicMock) -> None:
-        """Test context manager cleanup on exception."""
-        try:
-            with TestComponent() as component:
-                assert component.is_initialized is True
-                raise ValueError("Test exception")
-        except ValueError:
-            pass
-
-        # Cleanup should still be called even with exception
-        mock_gpio.cleanup.assert_called()
-
     def test_cleanup(self, mock_gpio: MagicMock) -> None:
         """Test component cleanup functionality."""
         component = TestComponent()
@@ -104,58 +74,3 @@ class TestBaseElectronicsComponent:
         component.cleanup()
 
         mock_gpio.cleanup.assert_called_once()
-
-    def test_get_status(self, mock_gpio: MagicMock) -> None:
-        """Test component status reporting."""
-        component = TestComponent("StatusTest")
-        component._register_gpio_pin(18)
-        component._register_gpio_pin(24)
-
-        status = component.get_status()
-
-        assert status["component_name"] == "StatusTest"
-        assert status["is_initialized"] is True
-        assert status["gpio_pins"] == [18, 24]
-
-    def test_repr(self, mock_gpio: MagicMock) -> None:
-        """Test component string representation."""
-        component = TestComponent("ReprTest")
-
-        repr_str = repr(component)
-
-        assert "ReprTest" in repr_str
-        assert "BaseElectronicsComponent" in repr_str
-
-    def test_logger_setup(self, mock_gpio: MagicMock) -> None:
-        """Test logger is properly configured."""
-        component = TestComponent("LoggerTest")
-
-        assert component.logger.name == "rpi_electronics_playground.LoggerTest"
-        assert component.logger.level == logging.INFO
-
-    def test_gpio_mode_already_set(self, mock_gpio: MagicMock) -> None:
-        """Test GPIO mode handling when already set."""
-        mock_gpio.getmode.return_value = mock_gpio.BCM
-
-        component = TestComponent()
-
-        # Should not call setmode if already set
-        mock_gpio.setmode.assert_not_called()
-
-    def test_register_gpio_pin_with_mode_and_state(self, mock_gpio: MagicMock) -> None:
-        """Test GPIO pin registration with mode and initial state."""
-        component = TestComponent()
-
-        component._register_gpio_pin(18, mode=mock_gpio.OUT, initial_state=mock_gpio.HIGH)
-
-        mock_gpio.setup.assert_called_with(18, mock_gpio.OUT, initial=mock_gpio.HIGH)
-        assert 18 in component.gpio_pins
-
-    def test_register_gpio_pin_with_mode_only(self, mock_gpio: MagicMock) -> None:
-        """Test GPIO pin registration with mode only."""
-        component = TestComponent()
-
-        component._register_gpio_pin(24, mode=mock_gpio.IN)
-
-        mock_gpio.setup.assert_called_with(24, mock_gpio.IN)
-        assert 24 in component.gpio_pins

@@ -136,19 +136,3 @@ class BaseElectronicsComponent(ABC):
     ) -> None:
         """Context manager exit with cleanup."""
         self.cleanup()
-
-    def get_status(self) -> dict[str, str | bool | list[int]]:
-        """Get the current status of the component.
-
-        :return dict: Component status information.
-        """
-        return {
-            "component_name": self.component_name,
-            "is_initialized": self.is_initialized,
-            "gpio_pins_used": sorted(self._gpio_pins_used),
-        }
-
-    def __repr__(self) -> str:
-        """Return string representation of the component."""
-        status = "initialized" if self.is_initialized else "not initialized"
-        return f"{self.__class__.__name__}(name='{self.component_name}', status='{status}')"
