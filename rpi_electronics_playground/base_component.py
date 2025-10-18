@@ -5,8 +5,11 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from types import TracebackType
+from typing import TypeVar
 
 from RPi import GPIO
+
+T = TypeVar("T", bound="BaseElectronicsComponent")
 
 
 class BaseElectronicsComponent(ABC):
@@ -126,7 +129,7 @@ class BaseElectronicsComponent(ABC):
         """Perform component-specific cleanup. Override in subclasses if needed."""
         # Default implementation does nothing - subclasses can override
 
-    def __enter__(self) -> BaseElectronicsComponent:
+    def __enter__(self: T) -> T:
         """Context manager entry."""
         return self
 

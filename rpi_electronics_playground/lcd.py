@@ -20,7 +20,7 @@ class LCD1602(BaseElectronicsComponent):
         self.address = address
         self.backlight_enabled = backlight
         self.bus_number = bus_number
-        self.bus = None
+        self.bus: smbus.SMBus | None = None
 
         super().__init__("LCD1602")
 
@@ -39,7 +39,7 @@ class LCD1602(BaseElectronicsComponent):
             temp |= 0x08
         else:
             temp &= 0xF7
-        self.bus.write_byte(self.address, temp)
+        self.bus.write_byte(self.address, temp)  # type: ignore[union-attr]
 
     def _send_command(self, command: int) -> None:
         """Send a command to the LCD display.
@@ -95,7 +95,7 @@ class LCD1602(BaseElectronicsComponent):
             self._send_command(0x0C)  # Enable display without cursor
             time.sleep(0.005)
             self._send_command(0x01)  # Clear Screen
-            self.bus.write_byte(self.address, 0x08)
+            self.bus.write_byte(self.address, 0x08)  # type: ignore[union-attr]
             self.logger.info("LCD1602 display initialized successfully at address 0x%02X", self.address)
         except Exception:
             self.logger.exception("Failed to initialize LCD1602 display!")
@@ -137,9 +137,9 @@ class LCD1602(BaseElectronicsComponent):
         """
         self.backlight_enabled = enabled
         if enabled:
-            self.bus.write_byte(self.address, 0x08)
+            self.bus.write_byte(self.address, 0x08)  # type: ignore[union-attr]
         else:
-            self.bus.write_byte(self.address, 0x00)
+            self.bus.write_byte(self.address, 0x00)  # type: ignore[union-attr]
 
     def _cleanup_component(self) -> None:
         """Clean up I2C bus resources."""
