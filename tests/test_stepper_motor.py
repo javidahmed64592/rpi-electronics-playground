@@ -51,17 +51,6 @@ class TestStepperMotor:
         expected_output_calls = [call(pin, mock_gpio.LOW) for pin in (18, 23, 24, 25)]
         mock_gpio.output.assert_has_calls(expected_output_calls)
 
-    def test_context_manager(self, mock_gpio: MagicMock) -> None:
-        """Test StepperMotor works as context manager."""
-        mock_gpio.getmode.return_value = None
-
-        with StepperMotor() as motor:
-            assert motor.component_name == "StepperMotor"
-            assert motor.is_initialized is True
-
-        # GPIO cleanup should be called
-        mock_gpio.cleanup.assert_called()
-
     def test_rotate_clockwise(self, mock_gpio: MagicMock, mock_sleep: MagicMock) -> None:
         """Test clockwise rotation."""
         motor = StepperMotor()

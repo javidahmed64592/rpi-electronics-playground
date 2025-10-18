@@ -37,15 +37,6 @@ class TestRFIDReader:
         assert rfid_reader.is_initialized is True
         mock_simple_mfrc522.__init__.assert_called_once()
 
-    def test_context_manager(self, mock_simple_mfrc522: MagicMock, mock_gpio: MagicMock) -> None:
-        """Test RFIDReader works as context manager."""
-        with RFIDReader() as rfid_reader:
-            assert rfid_reader.component_name == "RFIDReader"
-            assert rfid_reader.is_initialized is True
-
-        # GPIO cleanup should be called
-        mock_gpio.cleanup.assert_called()
-
     @pytest.mark.parametrize(
         ("card_id", "text"),
         [

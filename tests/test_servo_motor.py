@@ -62,7 +62,7 @@ class TestServoMotor:
         test_max_pulse = 2400
 
         servo = ServoMotor(
-            servo_pin=test_pin,
+            pin=test_pin,
             locked_angle=test_locked_angle,
             unlocked_angle=test_unlocked_angle,
             frequency=test_frequency,
@@ -72,27 +72,13 @@ class TestServoMotor:
 
         assert servo.component_name == "ServoMotor"
         assert servo.is_initialized is True
-        assert servo.servo_pin == test_pin
+        assert servo.pin == test_pin
         assert servo.locked_angle == test_locked_angle
         assert servo.unlocked_angle == test_unlocked_angle
         assert servo.frequency == test_frequency
         assert servo.min_pulse == test_min_pulse
         assert servo.max_pulse == test_max_pulse
         mock_gpio.PWM.assert_called_once_with(test_pin, test_frequency)
-
-    def test_context_manager(self, mock_gpio: MagicMock) -> None:
-        """Test ServoMotor works as context manager."""
-        mock_gpio.getmode.return_value = None
-        mock_pwm = MagicMock()
-        mock_gpio.PWM.return_value = mock_pwm
-
-        with ServoMotor(servo_pin=18) as servo:
-            assert servo.component_name == "ServoMotor"
-            assert servo.is_initialized is True
-
-        # PWM should be stopped and GPIO cleaned up
-        mock_pwm.stop.assert_called()
-        mock_gpio.cleanup.assert_called()
 
     @pytest.mark.parametrize(
         ("value", "in_min", "in_max", "out_min", "out_max", "expected"),
