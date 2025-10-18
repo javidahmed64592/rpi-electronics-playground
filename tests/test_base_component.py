@@ -22,6 +22,10 @@ class TestComponent(BaseElectronicsComponent):
         """Mock implementation of component initialization."""
         self.initialization_called = True
 
+    def _cleanup_component(self) -> None:
+        """Mock implementation of component cleanup."""
+        self.cleanup_called = True
+
 
 @pytest.fixture
 def mock_gpio() -> Generator[MagicMock, None, None]:
@@ -155,41 +159,3 @@ class TestBaseElectronicsComponent:
 
         mock_gpio.setup.assert_called_with(24, mock_gpio.IN)
         assert 24 in component.gpio_pins
-
-
-class TestComponentWithCleanup(BaseElectronicsComponent):
-    """Test component that implements custom cleanup."""
-
-    def __init__(self) -> None:
-        """Initialize test component with cleanup."""
-        self.cleanup_called = False
-        super().__init__("CleanupTest")
-
-    def _initialize_component(self) -> None:
-        """Mock implementation of component initialization."""
-        pass
-
-    def _cleanup_component(self) -> None:
-        """Mock implementation of component cleanup."""
-        self.cleanup_called = True
-
-
-class TestBaseElectronicsComponentCleanup:
-    """Test custom cleanup functionality."""
-
-    def test_custom_cleanup_called(self, mock_gpio: MagicMock) -> None:
-        """Test that custom cleanup method is called."""
-        component = TestComponentWithCleanup()
-
-        component.cleanup()
-
-        assert component.cleanup_called is True
-        mock_gpio.cleanup.assert_called_once()
-
-    def test_context_manager_calls_custom_cleanup(self, mock_gpio: MagicMock) -> None:
-        """Test context manager calls custom cleanup."""
-        with TestComponentWithCleanup() as component:
-            pass
-
-        assert component.cleanup_called is True
-        mock_gpio.cleanup.assert_called_once()
