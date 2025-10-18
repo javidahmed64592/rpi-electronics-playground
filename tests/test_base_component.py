@@ -1,6 +1,5 @@
 """Unit tests for the rpi_electronics_playground.base_component module."""
 
-import logging
 from collections.abc import Generator
 from unittest.mock import MagicMock, patch
 
