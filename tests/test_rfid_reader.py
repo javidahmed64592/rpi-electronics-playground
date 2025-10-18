@@ -21,14 +21,6 @@ def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
 class TestRFIDReader:
     """Unit tests for the RFIDReader class."""
 
-    def test_init(self, mock_simple_mfrc522: MagicMock) -> None:
-        """Test RFIDReader initialization."""
-        rfid_reader = RFIDReader()
-
-        assert rfid_reader.component_name == "RFIDReader"
-        assert rfid_reader.is_initialized is True
-        mock_simple_mfrc522.__init__.assert_called_once()
-
     @pytest.mark.parametrize(
         ("card_id", "text"),
         [

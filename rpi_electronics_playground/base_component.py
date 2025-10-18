@@ -1,5 +1,7 @@
 """Base component class for all electronic components in the library."""
 
+from __future__ import annotations
+
 import logging
 from abc import ABC, abstractmethod
 from types import TracebackType
@@ -124,7 +126,7 @@ class BaseElectronicsComponent(ABC):
         """Perform component-specific cleanup. Override in subclasses if needed."""
         # Default implementation does nothing - subclasses can override
 
-    def __enter__(self) -> "BaseElectronicsComponent":
+    def __enter__(self) -> BaseElectronicsComponent:
         """Context manager entry."""
         return self
 

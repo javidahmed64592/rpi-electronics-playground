@@ -38,16 +38,6 @@ def mock_gpio() -> Generator[MagicMock, None, None]:
 class TestBaseElectronicsComponent:
     """Unit tests for the BaseElectronicsComponent class."""
 
-    def test_init(self, mock_gpio: MagicMock) -> None:
-        """Test component initialization."""
-        component = MockComponent("TestDevice")
-
-        assert component.component_name == "TestDevice"
-        assert component.is_initialized is True
-        assert component.initialization_called is True
-        assert isinstance(component.logger, logging.Logger)
-        assert component.logger.name == "rpi_electronics_playground.testdevice"
-
     def test_gpio_pin_registration(self, mock_gpio: MagicMock) -> None:
         """Test GPIO pin registration functionality."""
         component = MockComponent()

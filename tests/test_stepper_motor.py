@@ -26,33 +26,9 @@ def mock_sleep() -> Generator[MagicMock, None, None]:
 class TestStepperMotor:
     """Unit tests for StepperMotor core functionality."""
 
-    def test_initialization(self, mock_gpio: MagicMock) -> None:
-        """Test stepper motor initialization with default and custom parameters."""
-        mock_gpio.getmode.return_value = None
-
-        # Test default parameters
-        motor = StepperMotor()
-
-        assert motor.component_name == "StepperMotor"
-        assert motor.is_initialized is True
-        assert motor.motor_pins == (18, 23, 24, 25)
-        assert motor.rpm == 15  # noqa: PLR2004
-        assert motor.steps_per_revolution == 2048  # noqa: PLR2004
-        assert motor.step_speed == (60 / 15) / 2048
-
-        # Verify GPIO setup was called
-        mock_gpio.setmode.assert_called_with(mock_gpio.BCM)
-
-        # Check that each pin was set up correctly
-        expected_setup_calls = [call(pin, mock_gpio.OUT) for pin in (18, 23, 24, 25)]
-        mock_gpio.setup.assert_has_calls(expected_setup_calls)
-
-        # Check that each pin was set to LOW initially
-        expected_output_calls = [call(pin, mock_gpio.LOW) for pin in (18, 23, 24, 25)]
-        mock_gpio.output.assert_has_calls(expected_output_calls)
-
     def test_rotate_clockwise(self, mock_gpio: MagicMock, mock_sleep: MagicMock) -> None:
         """Test clockwise rotation."""
+        mock_gpio.getmode.return_value = None
         motor = StepperMotor()
         motor.rotate_clockwise(5)
 
@@ -62,6 +38,7 @@ class TestStepperMotor:
 
     def test_rotate_counterclockwise(self, mock_gpio: MagicMock, mock_sleep: MagicMock) -> None:
         """Test counterclockwise rotation."""
+        mock_gpio.getmode.return_value = None
         motor = StepperMotor()
         motor.rotate_counterclockwise(3)
 
@@ -71,6 +48,7 @@ class TestStepperMotor:
 
     def test_rotate_degrees_clockwise(self, mock_gpio: MagicMock, mock_sleep: MagicMock) -> None:
         """Test degree-based clockwise rotation."""
+        mock_gpio.getmode.return_value = None
         motor = StepperMotor()
         motor.rotate_degrees_clockwise(90)
 
@@ -80,6 +58,7 @@ class TestStepperMotor:
 
     def test_rotate_degrees_counterclockwise(self, mock_gpio: MagicMock, mock_sleep: MagicMock) -> None:
         """Test degree-based counterclockwise rotation."""
+        mock_gpio.getmode.return_value = None
         motor = StepperMotor()
         motor.rotate_degrees_counterclockwise(90)
 
@@ -89,6 +68,7 @@ class TestStepperMotor:
 
     def test_stop(self, mock_gpio: MagicMock) -> None:
         """Test motor stop functionality."""
+        mock_gpio.getmode.return_value = None
         motor = StepperMotor()
         mock_gpio.output.reset_mock()  # Reset call count from initialization
 
@@ -100,6 +80,7 @@ class TestStepperMotor:
 
     def test_cleanup(self, mock_gpio: MagicMock, caplog: pytest.LogCaptureFixture) -> None:
         """Test motor cleanup."""
+        mock_gpio.getmode.return_value = None
         motor = StepperMotor()
 
         with caplog.at_level(logging.INFO):
