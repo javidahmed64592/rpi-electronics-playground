@@ -10,22 +10,6 @@ from rpi_electronics_playground.rfid_reader import RFIDReader
 
 
 @pytest.fixture
-def mock_sleep() -> Generator[MagicMock, None, None]:
-    """Fixture to mock time.sleep."""
-    with patch("rpi_electronics_playground.rfid_reader.time.sleep") as mock:
-        yield mock
-
-
-@pytest.fixture
-def mock_rfid_reader() -> Generator[MagicMock, None, None]:
-    """Fixture to mock RFIDReader class."""
-    with patch("rpi_electronics_playground.rfid_reader.RFIDReader") as mock:
-        mock_reader = MagicMock()
-        mock.return_value = mock_reader
-        yield mock_reader
-
-
-@pytest.fixture
 def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
     """Fixture to mock SimpleMFRC522."""
     with patch("rpi_electronics_playground.rfid_reader.SimpleMFRC522") as mock:
@@ -38,11 +22,29 @@ def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
 def mock_gpio() -> Generator[MagicMock, None, None]:
     """Fixture to mock GPIO module."""
     with patch("rpi_electronics_playground.rfid_reader.GPIO") as mock:
+        mock.getmode.return_value = None
         yield mock
 
 
 class TestRFIDReader:
     """Unit tests for the RFIDReader class."""
+
+    def test_init(self, mock_simple_mfrc522: MagicMock, mock_gpio: MagicMock) -> None:
+        """Test RFIDReader initialization."""
+        rfid_reader = RFIDReader()
+
+        assert rfid_reader.component_name == "RFIDReader"
+        assert rfid_reader.is_initialized is True
+        mock_simple_mfrc522.__init__.assert_called_once()
+
+    def test_context_manager(self, mock_simple_mfrc522: MagicMock, mock_gpio: MagicMock) -> None:
+        """Test RFIDReader works as context manager."""
+        with RFIDReader() as rfid_reader:
+            assert rfid_reader.component_name == "RFIDReader"
+            assert rfid_reader.is_initialized is True
+
+        # GPIO cleanup should be called
+        mock_gpio.cleanup.assert_called()
 
     @pytest.mark.parametrize(
         ("card_id", "text"),

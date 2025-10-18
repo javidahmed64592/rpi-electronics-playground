@@ -32,9 +32,20 @@ class TestLCD1602:
         """Test LCD1602 initialization."""
         lcd = LCD1602()
 
+        assert lcd.component_name == "LCD1602"
+        assert lcd.is_initialized is True
         assert lcd.address == 0x27  # noqa: PLR2004
         assert lcd.backlight_enabled is True
         mock_smbus.write_byte.assert_called()
+
+    def test_context_manager(self, mock_smbus: MagicMock, mock_sleep: MagicMock) -> None:
+        """Test LCD1602 works as context manager."""
+        with LCD1602() as lcd:
+            assert lcd.component_name == "LCD1602"
+            assert lcd.is_initialized is True
+
+        # Bus should be closed
+        mock_smbus.close.assert_called()
 
     def test_init_failure(self, mock_smbus: MagicMock) -> None:
         """Test LCD1602 initialization when it fails."""

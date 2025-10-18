@@ -29,9 +29,13 @@ class TestUltrasonicSensor:
 
     def test_initialization(self, mock_gpio: MagicMock) -> None:
         """Test sensor initialization with default and custom parameters."""
+        mock_gpio.getmode.return_value = None
+
         # Test default parameters
         sensor = UltrasonicSensor()
 
+        assert sensor.component_name == "UltrasonicSensor"
+        assert sensor.is_initialized is True
         assert sensor.trig_pin == 5  # noqa: PLR2004
         assert sensor.echo_pin == 6  # noqa: PLR2004
         assert sensor.sample_count == 5  # noqa: PLR2004
@@ -43,6 +47,17 @@ class TestUltrasonicSensor:
         mock_gpio.setmode.assert_called_with(mock_gpio.BCM)
         mock_gpio.setup.assert_any_call(5, mock_gpio.OUT)
         mock_gpio.setup.assert_any_call(6, mock_gpio.IN)
+
+    def test_context_manager(self, mock_gpio: MagicMock) -> None:
+        """Test UltrasonicSensor works as context manager."""
+        mock_gpio.getmode.return_value = None
+
+        with UltrasonicSensor() as sensor:
+            assert sensor.component_name == "UltrasonicSensor"
+            assert sensor.is_initialized is True
+
+        # GPIO cleanup should be called
+        mock_gpio.cleanup.assert_called()
 
     def test_single_distance_measurement(self, mock_gpio: MagicMock, mock_time: MagicMock) -> None:
         """Test single distance measurement with successful reading."""
