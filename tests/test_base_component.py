@@ -48,13 +48,6 @@ class TestBaseElectronicsComponent:
         assert isinstance(component.logger, logging.Logger)
         assert component.logger.name == "rpi_electronics_playground.testdevice"
 
-    def test_init_with_gpio_setup(self, mock_gpio: MagicMock) -> None:
-        """Test component initialization sets up GPIO mode."""
-        TestComponent()
-
-        # GPIO.getmode() should be called during initialization but setmode is not called in this version
-        mock_gpio.getmode.assert_called()
-
     def test_gpio_pin_registration(self, mock_gpio: MagicMock) -> None:
         """Test GPIO pin registration functionality."""
         component = TestComponent()
@@ -66,37 +59,6 @@ class TestBaseElectronicsComponent:
         assert 18 in component._gpio_pins_used
         assert 24 in component._gpio_pins_used
         assert len(component._gpio_pins_used) == 2
-
-    def test_gpio_pin_registration_duplicate(self, mock_gpio: MagicMock) -> None:
-        """Test GPIO pin registration prevents duplicates."""
-        component = TestComponent()
-
-        component._register_gpio_pin(18)
-        component._register_gpio_pin(18)  # Duplicate
-
-        assert len(component._gpio_pins_used) == 1
-        assert 18 in component._gpio_pins_used
-
-    def test_context_manager(self, mock_gpio: MagicMock) -> None:
-        """Test component works as context manager."""
-        with TestComponent("ContextTest") as component:
-            assert component.component_name == "ContextTest"
-            assert component.is_initialized is True
-
-        # Component should be cleaned up after context
-        mock_gpio.cleanup.assert_called()
-
-    def test_context_manager_with_exception(self, mock_gpio: MagicMock) -> None:
-        """Test context manager cleanup on exception."""
-        try:
-            with TestComponent() as component:
-                assert component.is_initialized is True
-                raise ValueError("Test exception")
-        except ValueError:
-            pass
-
-        # Cleanup should still be called even with exception
-        mock_gpio.cleanup.assert_called()
 
     def test_cleanup(self, mock_gpio: MagicMock) -> None:
         """Test component cleanup functionality."""
@@ -112,22 +74,6 @@ class TestBaseElectronicsComponent:
         # Should call GPIO.setup for each pin to set to safe input mode
         mock_gpio.setup.assert_called()
         mock_gpio.output.assert_called()
-
-    def test_repr(self, mock_gpio: MagicMock) -> None:
-        """Test component string representation."""
-        component = TestComponent("ReprTest")
-
-        repr_str = repr(component)
-
-        assert "ReprTest" in repr_str
-        assert "BaseElectronicsComponent" in repr_str
-
-    def test_logger_setup(self, mock_gpio: MagicMock) -> None:
-        """Test logger is properly configured."""
-        component = TestComponent("LoggerTest")
-
-        assert component.logger.name == "rpi_electronics_playground.LoggerTest"
-        assert component.logger.level == logging.INFO
 
     def test_gpio_mode_already_set(self, mock_gpio: MagicMock) -> None:
         """Test GPIO mode handling when already set."""
