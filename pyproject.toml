@@ -39,6 +39,7 @@ main = "rpi_electronics_playground.main:run"
 lcd-off = "rpi_electronics_playground.lcd:turn_off"
 lcd-debug = "rpi_electronics_playground.lcd:debug"
 ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
+stepper-debug = "rpi_electronics_playground.stepper_motor:debug"
 
 [tool.hatch.build]
 include = [
