@@ -3,7 +3,6 @@
 import time
 
 from mfrc522 import SimpleMFRC522
-from RPi import GPIO
 
 from rpi_electronics_playground.base_component import BaseElectronicsComponent
 
