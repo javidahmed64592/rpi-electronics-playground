@@ -31,7 +31,7 @@ class StepperMotor(BaseElectronicsComponent):
 
     def _initialize_component(self) -> None:
         """Initialize the motor GPIO pins."""
-        GPIO.setwarnings(False)
+        GPIO.setwarnings(gpio_warnings=False)
         self._ensure_gpio_mode_set()
 
         for pin in self.motor_pins:
