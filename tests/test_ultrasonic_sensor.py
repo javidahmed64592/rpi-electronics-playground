@@ -136,7 +136,7 @@ class TestUltrasonicSensor:
         with patch.object(sensor, "_get_single_distance") as mock_single:
             mock_single.side_effect = [-1.0, 25.0, -1.0, -1.0, -1.0, -1.0]
 
-            with caplog.at_level(logging.DEBUG, logger="rpi_electronics_playground.ultrasonicsensor"):
+            with caplog.at_level(logging.DEBUG):
                 distance = sensor.get_distance()
 
             assert distance == 25.0  # noqa: PLR2004

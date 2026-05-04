@@ -1,10 +1,13 @@
 """Servo motor control module for lock/unlock operations."""
 
+import logging
 import time
 
 from RPi import GPIO
 
 from rpi_electronics_playground.base_component import BaseElectronicsComponent
+
+logger = logging.getLogger(__name__)
 
 
 class ServoMotor(BaseElectronicsComponent):
@@ -117,7 +120,7 @@ def debug() -> None:
                 elif command in ["quit", "q", "exit"]:
                     break
                 else:
-                    servo_lock.logger.warning("Invalid command. Use: lock, unlock, toggle, or quit")
+                    logger.warning("Invalid command. Use: lock, unlock, toggle, or quit")
 
         except KeyboardInterrupt:
-            servo_lock.logger.info("Exiting...")
+            logger.info("Exiting...")

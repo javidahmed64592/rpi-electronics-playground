@@ -1,10 +1,13 @@
 """LCD1602 display control module for I2C interface."""
 
+import logging
 import time
 
 import smbus2 as smbus
 
 from rpi_electronics_playground.base_component import BaseElectronicsComponent
+
+logger = logging.getLogger(__name__)
 
 
 class LCD1602(BaseElectronicsComponent):
@@ -96,9 +99,9 @@ class LCD1602(BaseElectronicsComponent):
             time.sleep(0.005)
             self._send_command(0x01)  # Clear Screen
             self.bus.write_byte(self.address, 0x08)  # type: ignore[union-attr]
-            self.logger.info("LCD1602 display initialized successfully at address 0x%02X", self.address)
+            logger.info("LCD1602 display initialized successfully at address 0x%02X", self.address)
         except Exception:
-            self.logger.exception("Failed to initialize LCD1602 display!")
+            logger.exception("Failed to initialize LCD1602 display!")
             raise
 
     def clear(self) -> None:
@@ -106,7 +109,7 @@ class LCD1602(BaseElectronicsComponent):
         try:
             self._send_command(0x01)
         except Exception:
-            self.logger.exception("Error clearing LCD display!")
+            logger.exception("Error clearing LCD display!")
 
     def write(self, x: int, y: int, text: str) -> None:
         """Write text to the LCD display at the specified position.
@@ -128,7 +131,7 @@ class LCD1602(BaseElectronicsComponent):
             for char in text:
                 self._send_data(ord(char))
         except Exception:
-            self.logger.exception("Error writing text to LCD display!")
+            logger.exception("Error writing text to LCD display!")
 
     def set_backlight(self, enabled: bool) -> None:  # noqa: FBT001
         """Enable or disable the LCD backlight.
@@ -148,9 +151,9 @@ class LCD1602(BaseElectronicsComponent):
             if self.bus:
                 self.bus.close()
                 self.bus = None
-            self.logger.info("LCD1602 cleanup complete.")
+            logger.info("LCD1602 cleanup complete.")
         except Exception:
-            self.logger.exception("Error during LCD cleanup!")
+            logger.exception("Error during LCD cleanup!")
 
     def cleanup(self) -> None:
         """Clean up I2C bus resources."""
@@ -161,23 +164,23 @@ def debug() -> None:
     """Demonstrate LCD1602 functionality."""
     with LCD1602(address=0x27, backlight=True) as lcd:
         try:
-            lcd.logger.info("Writing text to LCD...")
+            logger.info("Writing text to LCD...")
             lcd.clear()
             lcd.write(4, 0, "Hello")
             lcd.write(7, 1, "world!")
 
             time.sleep(3)
 
-            lcd.logger.info("Testing backlight toggle...")
+            logger.info("Testing backlight toggle...")
             lcd.set_backlight(False)
             time.sleep(1)
             lcd.set_backlight(True)
 
-            lcd.logger.info("Clearing display...")
+            logger.info("Clearing display...")
             time.sleep(2)
             lcd.clear()
 
-            lcd.logger.info("Demo complete!")
+            logger.info("Demo complete!")
 
         except KeyboardInterrupt:
-            lcd.logger.info("Exiting...")
+            logger.info("Exiting...")

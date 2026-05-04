@@ -1,5 +1,6 @@
 """Ultrasonic sensor control module for HC-SR04."""
 
+import logging
 import statistics
 import time
 from collections import deque
@@ -7,6 +8,8 @@ from collections import deque
 from RPi import GPIO
 
 from rpi_electronics_playground.base_component import BaseElectronicsComponent
+
+logger = logging.getLogger(__name__)
 
 
 class UltrasonicSensor(BaseElectronicsComponent):
@@ -46,7 +49,7 @@ class UltrasonicSensor(BaseElectronicsComponent):
         self._setup_gpio_pin(self.trig_pin, GPIO.OUT, GPIO.LOW)
         self._setup_gpio_pin(self.echo_pin, GPIO.IN)
 
-        self.logger.info("Ultrasonic sensor initialized on pins TRIG=%d, ECHO=%d", self.trig_pin, self.echo_pin)
+        logger.info("Ultrasonic sensor initialized on pins TRIG=%d, ECHO=%d", self.trig_pin, self.echo_pin)
 
     def _get_single_distance(self) -> float:
         """Get a single distance measurement.
@@ -145,13 +148,13 @@ class UltrasonicSensor(BaseElectronicsComponent):
                 time.sleep(0.01)
 
             if len(valid_readings) == 0:
-                self.logger.warning("No valid readings for distance measurement")
+                logger.warning("No valid readings for distance measurement")
                 return -1.0
 
             if len(valid_readings) == 1:
                 # Single reading - use it but mark as less reliable
                 filtered_distance = valid_readings[0]
-                self.logger.debug("Using single reading: %.1f cm", filtered_distance)
+                logger.debug("Using single reading: %.1f cm", filtered_distance)
             else:
                 # Multiple readings - use median for robustness
                 filtered_distance = statistics.median(valid_readings)
@@ -170,7 +173,7 @@ class UltrasonicSensor(BaseElectronicsComponent):
             return float(round(filtered_distance, 1))
 
         except Exception:
-            self.logger.exception("Error measuring distance!")
+            logger.exception("Error measuring distance!")
             return -1.0
 
     def _cleanup_component(self) -> None:
@@ -182,20 +185,20 @@ def debug() -> None:
     """Demonstrate ultrasonic sensor functionality with accuracy improvements."""
     with UltrasonicSensor(trig_pin=5, echo_pin=6, sample_count=3, filter_size=5) as sensor:
         try:
-            sensor.logger.info("Starting enhanced distance measurements...")
-            sensor.logger.info(
+            logger.info("Starting enhanced distance measurements...")
+            logger.info(
                 "Using %d samples per reading with %d-point moving average", sensor.sample_count, sensor.filter_size
             )
 
             for i in range(15):
                 distance = sensor.get_distance()
                 if distance >= 0:
-                    sensor.logger.info("Measurement %d: Distance = %.1f cm", i + 1, distance)
+                    logger.info("Measurement %d: Distance = %.1f cm", i + 1, distance)
                 else:
-                    sensor.logger.warning("Measurement %d: Failed to get reading", i + 1)
+                    logger.warning("Measurement %d: Failed to get reading", i + 1)
                 time.sleep(1.0)
 
-            sensor.logger.info("Demo complete!")
+            logger.info("Demo complete!")
 
         except KeyboardInterrupt:
-            sensor.logger.info("Exiting...")
+            logger.info("Exiting...")
