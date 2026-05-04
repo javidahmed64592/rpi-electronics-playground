@@ -12,102 +12,57 @@ jobs:
   validate-pyproject:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: ".python-version"
-      - name: Install dependencies
-        run: |
-          uv sync --extra dev
-      - name: Validate pyproject.toml
-        run: |
-          uv run validate-pyproject pyproject.toml
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/ci/validate-pyproject@main
+
   ruff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: chartboost/ruff-action@v1
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/ci/ruff@main
+
   mypy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: ".python-version"
-      - name: Install dependencies
-        run: |
-          uv sync --extra dev
-      - name: Check with mypy
-        run: |
-          uv run -m mypy .
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/ci/mypy@main
+
   pytest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: ".python-version"
-      - name: Install dependencies
-        run: |
-          uv sync --extra dev
-      - name: Test with pytest
-        run: |
-          uv run -m pytest --cov-report html
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: htmlcov
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/setup/check-tests-exists@main
+        id: check-tests-exists
+      - uses: javidahmed64592/actions-template-python/actions/ci/pytest@main
+        if: steps.check-tests-exists.outputs.exists == 'true'
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/ci/bandit@main
+
+  pip-audit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/ci/pip-audit@main
+
   version-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/ci/version-check@main
         with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: ".python-version"
-      - name: Install Python dependencies
-        run: |
-          uv sync --extra dev
-      - name: Check version consistency
-        run: |
-          echo "Checking version consistency across all package files..."
+          frontend-dir-exists: false
 
-          PACKAGE_NAME="rpi-electronics-playground"
-          TOML_VERSION=$(uv run python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          LOCK_VERSION=$(uv run python -c "import tomli; lock_data = tomli.load(open('uv.lock', 'rb')); pkg = next((p for p in lock_data['package'] if p['name'] == '${PACKAGE_NAME/_/-}'), None); print(pkg['version'] if pkg else 'not found')")
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: javidahmed64592/actions-template-python/actions/setup/check-frontend-exists@main
+        id: check-frontend-exists
 
-          echo "Version in pyproject.toml: $TOML_VERSION"
-          echo "Version in uv.lock: $LOCK_VERSION"
-
-          if [ "$TOML_VERSION" != "$LOCK_VERSION" ]; then
-            echo "ERROR: Python version mismatch!"
-            echo "pyproject.toml has $TOML_VERSION but uv.lock has $LOCK_VERSION"
-            exit 1
-          fi
-
-          echo "All versions match: $TOML_VERSION"
-          echo "Version consistency check passed!"
+      - uses: javidahmed64592/actions-template-python/actions/ci/frontend@main
+        if: steps.check-frontend-exists.outputs.exists == 'true'
