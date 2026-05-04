@@ -10,14 +10,14 @@ from rpi_electronics_playground.stepper_motor import StepperMotor
 
 
 @pytest.fixture
-def mock_gpio() -> Generator[MagicMock, None, None]:
+def mock_gpio() -> Generator[MagicMock]:
     """Fixture to mock GPIO module."""
     with patch("rpi_electronics_playground.stepper_motor.GPIO") as mock:
         yield mock
 
 
 @pytest.fixture(autouse=True)
-def mock_sleep() -> Generator[MagicMock, None, None]:
+def mock_sleep() -> Generator[MagicMock]:
     """Fixture to mock time.sleep."""
     with patch("rpi_electronics_playground.stepper_motor.time.sleep") as mock:
         yield mock

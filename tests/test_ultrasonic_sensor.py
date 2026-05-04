@@ -10,14 +10,14 @@ from rpi_electronics_playground.ultrasonic_sensor import UltrasonicSensor
 
 
 @pytest.fixture
-def mock_gpio() -> Generator[MagicMock, None, None]:
+def mock_gpio() -> Generator[MagicMock]:
     """Fixture to mock GPIO module."""
     with patch("rpi_electronics_playground.ultrasonic_sensor.GPIO") as mock:
         yield mock
 
 
 @pytest.fixture
-def mock_time() -> Generator[MagicMock, None, None]:
+def mock_time() -> Generator[MagicMock]:
     """Fixture to mock time module."""
     with patch("rpi_electronics_playground.ultrasonic_sensor.time") as mock:
         yield mock
@@ -51,7 +51,7 @@ class TestUltrasonicSensor:
         distance = sensor._get_single_distance()
 
         # Expected: (0.0001 * 34300) / 2 = 1.715, rounded to 1.71
-        assert distance == 1.71
+        assert distance == 1.71  # noqa: PLR2004
 
         # Verify trigger pulse sequence
         expected_calls = [
@@ -139,7 +139,7 @@ class TestUltrasonicSensor:
             with caplog.at_level(logging.DEBUG, logger="rpi_electronics_playground.ultrasonicsensor"):
                 distance = sensor.get_distance()
 
-            assert distance == 25.0
+            assert distance == 25.0  # noqa: PLR2004
             assert "Using single reading" in caplog.text
 
     def test_moving_average_buffer(self, mock_gpio: MagicMock) -> None:
@@ -155,8 +155,8 @@ class TestUltrasonicSensor:
                 sensor.get_distance()
 
             # Buffer should respect maxlen
-            assert len(sensor.readings_buffer) == 3
-            assert sensor.readings_buffer.maxlen == 3
+            assert len(sensor.readings_buffer) == 3  # noqa: PLR2004
+            assert sensor.readings_buffer.maxlen == 3  # noqa: PLR2004
 
     def test_cleanup(self, mock_gpio: MagicMock, caplog: pytest.LogCaptureFixture) -> None:
         """Test sensor cleanup."""

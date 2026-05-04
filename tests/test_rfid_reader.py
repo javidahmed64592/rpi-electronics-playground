@@ -10,7 +10,7 @@ from rpi_electronics_playground.rfid_reader import RFIDReader
 
 
 @pytest.fixture
-def mock_simple_mfrc522() -> Generator[MagicMock, None, None]:
+def mock_simple_mfrc522() -> Generator[MagicMock]:
     """Fixture to mock SimpleMFRC522."""
     with patch("rpi_electronics_playground.rfid_reader.SimpleMFRC522") as mock:
         mock_reader = MagicMock()

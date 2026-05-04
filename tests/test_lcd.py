@@ -10,7 +10,7 @@ from rpi_electronics_playground.lcd import LCD1602
 
 
 @pytest.fixture
-def mock_smbus() -> Generator[MagicMock, None, None]:
+def mock_smbus() -> Generator[MagicMock]:
     """Fixture to mock smbus2.SMBus."""
     with patch("rpi_electronics_playground.lcd.smbus.SMBus") as mock:
         mock_bus = MagicMock()
@@ -19,7 +19,7 @@ def mock_smbus() -> Generator[MagicMock, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def mock_sleep() -> Generator[MagicMock, None, None]:
+def mock_sleep() -> Generator[MagicMock]:
     """Fixture to mock time.sleep."""
     with patch("rpi_electronics_playground.lcd.time.sleep") as mock:
         yield mock
