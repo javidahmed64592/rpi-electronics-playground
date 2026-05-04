@@ -7,33 +7,33 @@ name = "rpi-electronics-playground"
 version = "0.1.0"
 description = "A Raspberry Pi-based electronics playground."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 license = { file = "LICENSE" }
 authors = [
     { name = "Javid Ahmed", email = "javidahmed@icloud.com" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "mfrc522>=0.0.7",
     "RPi.GPIO>=0.7.1",
-    "smbus2",
+    "smbus2>=0.6.1",
+    "template-python @ git+https://github.com/javidahmed64592/template-python.git",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "mypy",
-    "pytest",
-    "pytest-cov",
-    "tomli",
-    "validate-pyproject>=0.24.1",
+    "template-python[dev] @ git+https://github.com/javidahmed64592/template-python.git",
+]
+docs = [
+    "template-python[docs] @ git+https://github.com/javidahmed64592/template-python.git",
 ]
 
 [project.urls]
 repository = "https://github.com/javidahmed64592/rpi-electronics-playground"
+documentation = "https://javidahmed64592.github.io/rpi-electronics-playground"
 
 [project.scripts]
 lcd-debug = "rpi_electronics_playground.lcd:debug"
@@ -42,10 +42,11 @@ servo-debug = "rpi_electronics_playground.servo_motor:debug"
 stepper-debug = "rpi_electronics_playground.stepper_motor:debug"
 ultrasonic-debug = "rpi_electronics_playground.ultrasonic_sensor:debug"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build]
 include = [
-  "README.md",
-  "LICENSE",
   "rpi_electronics_playground/**",
 ]
 
@@ -57,8 +58,17 @@ addopts = [
     "term-missing",
 ]
 
+[tool.coverage.run]
+branch = true
+source = ["rpi_electronics_playground", "tests"]
+
+[tool.coverage.report]
+fail_under = 80
+skip_covered = false
+show_missing = true
+
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 line-length = 120
 indent-width = 4
 
@@ -105,6 +115,7 @@ select = [
     "E",
     "EM",
     "F",
+    "FBT",
     "G",
     "I",
     "ISC",
@@ -137,14 +148,14 @@ unfixable = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[tool.ruff.lint.per-file-ignores]
-"tests/**" = ["PLR2004"]
-
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.mypy]
 warn_unused_configs = true
@@ -160,6 +171,7 @@ pretty = true
 module = [
     "mfrc522.*",
     "RPi.*",
-    "smbus2.*"
+    "smbus2.*",
+    "template_python.*",
 ]
 ignore_missing_imports = true
