@@ -8,8 +8,12 @@ from types import TracebackType
 from typing import TypeVar
 
 from RPi import GPIO
+from template_python.logging_setup import setup_default_logging
 
 T = TypeVar("T", bound="BaseElectronicsComponent")
+setup_default_logging()
+
+logger = logging.getLogger(__name__)
 
 
 class BaseElectronicsComponent(ABC):
@@ -21,40 +25,16 @@ class BaseElectronicsComponent(ABC):
         :param str component_name: Name of the component for logging purposes.
         """
         self.component_name = component_name
-        self.logger = self._setup_logger()
         self.is_initialized = False
 
         try:
             self._initialize_component()
             self.is_initialized = True
-            self.logger.info("%s initialized successfully", self.component_name)
+            logger.info("%s initialized successfully", self.component_name)
         except Exception as e:
-            self.logger.exception("Failed to initialize %s", self.component_name)
+            logger.exception("Failed to initialize %s", self.component_name)
             error_msg = f"Failed to initialize {self.component_name}: {e}"
             raise RuntimeError(error_msg) from e
-
-    def _setup_logger(self) -> logging.Logger:
-        """Set up logger for the component.
-
-        :return logging.Logger: Configured logger instance.
-        """
-        # Create logger for this component
-        logger = logging.getLogger(f"rpi_electronics_playground.{self.component_name.lower()}")
-
-        # Only add handler if it doesn't already have one (avoid duplicates)
-        if not logger.handlers:
-            # Create formatter
-            formatter = logging.Formatter(
-                fmt="%(asctime)s [%(name)s] %(levelname)s: %(message)s", datefmt="[%d-%m-%Y|%H:%M:%S]"
-            )
-
-            # Create console handler
-            console_handler = logging.StreamHandler()
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
-            logger.setLevel(logging.INFO)
-
-        return logger
 
     @abstractmethod
     def _initialize_component(self) -> None:
@@ -76,21 +56,21 @@ class BaseElectronicsComponent(ABC):
             GPIO.setup(pin, mode)
             if mode == GPIO.OUT and initial is not None:
                 GPIO.output(pin, initial)
-            self.logger.debug("GPIO pin %d configured as %s", pin, "OUTPUT" if mode == GPIO.OUT else "INPUT")
+            logger.debug("GPIO pin %d configured as %s", pin, "OUTPUT" if mode == GPIO.OUT else "INPUT")
         except Exception:
-            self.logger.exception("Failed to setup GPIO pin %d", pin)
+            logger.exception("Failed to setup GPIO pin %d", pin)
             raise
 
     def _ensure_gpio_mode_set(self) -> None:
         """Ensure GPIO mode is set to BCM if not already set."""
         if GPIO.getmode() is None:
             GPIO.setmode(GPIO.BCM)
-            self.logger.debug("GPIO mode set to BCM")
+            logger.debug("GPIO mode set to BCM")
 
     def cleanup(self) -> None:
         """Clean up component resources."""
         if not self.is_initialized:
-            self.logger.debug("Component %s was not initialized, skipping cleanup", self.component_name)
+            logger.debug("Component %s was not initialized, skipping cleanup", self.component_name)
             return
 
         try:
@@ -101,10 +81,10 @@ class BaseElectronicsComponent(ABC):
             GPIO.cleanup()
 
             self.is_initialized = False
-            self.logger.info("%s cleanup complete", self.component_name)
+            logger.info("%s cleanup complete", self.component_name)
 
         except Exception:
-            self.logger.exception("Error during %s cleanup", self.component_name)
+            logger.exception("Error during %s cleanup", self.component_name)
             raise
 
     @abstractmethod
