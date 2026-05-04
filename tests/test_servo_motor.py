@@ -9,7 +9,7 @@ from rpi_electronics_playground.servo_motor import ServoMotor
 
 
 @pytest.fixture
-def mock_gpio() -> Generator[MagicMock, None, None]:
+def mock_gpio() -> Generator[MagicMock]:
     """Fixture to mock GPIO module."""
     with patch("rpi_electronics_playground.servo_motor.GPIO") as mock:
         mock.getmode.return_value = None
@@ -19,7 +19,7 @@ def mock_gpio() -> Generator[MagicMock, None, None]:
 
 
 @pytest.fixture
-def mock_sleep() -> Generator[MagicMock, None, None]:
+def mock_sleep() -> Generator[MagicMock]:
     """Fixture to mock time.sleep."""
     with patch("rpi_electronics_playground.servo_motor.time.sleep") as mock:
         yield mock
@@ -76,9 +76,9 @@ class TestServoMotor:
     )
     def test_lock(
         self,
-        initial_locked_state: bool,
-        expected_locked_state: bool,
-        should_call_pwm: bool,
+        initial_locked_state: bool,  # noqa: FBT001
+        expected_locked_state: bool,  # noqa: FBT001
+        should_call_pwm: bool,  # noqa: FBT001
         mock_sleep: MagicMock,
         mock_gpio: MagicMock,
     ) -> None:
@@ -110,9 +110,9 @@ class TestServoMotor:
     )
     def test_unlock(
         self,
-        initial_locked_state: bool,
-        expected_locked_state: bool,
-        should_call_pwm: bool,
+        initial_locked_state: bool,  # noqa: FBT001
+        expected_locked_state: bool,  # noqa: FBT001
+        should_call_pwm: bool,  # noqa: FBT001
         mock_sleep: MagicMock,
         mock_gpio: MagicMock,
     ) -> None:
@@ -144,8 +144,8 @@ class TestServoMotor:
     )
     def test_toggle(
         self,
-        initial_locked_state: bool,
-        expected_locked_state: bool,
+        initial_locked_state: bool,  # noqa: FBT001
+        expected_locked_state: bool,  # noqa: FBT001
         mock_sleep: MagicMock,
         mock_gpio: MagicMock,
     ) -> None:

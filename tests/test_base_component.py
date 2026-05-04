@@ -27,7 +27,7 @@ class MockComponent(BaseElectronicsComponent):
 
 
 @pytest.fixture
-def mock_gpio() -> Generator[MagicMock, None, None]:
+def mock_gpio() -> Generator[MagicMock]:
     """Fixture to mock GPIO module."""
     with patch("rpi_electronics_playground.base_component.GPIO") as mock:
         mock.getmode.return_value = None

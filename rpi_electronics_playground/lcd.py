@@ -10,7 +10,7 @@ from rpi_electronics_playground.base_component import BaseElectronicsComponent
 class LCD1602(BaseElectronicsComponent):
     """Class for controlling an LCD1602 display via I2C interface."""
 
-    def __init__(self, address: int = 0x27, backlight: bool = True, bus_number: int = 1) -> None:
+    def __init__(self, address: int = 0x27, backlight: bool = True, bus_number: int = 1) -> None:  # noqa: FBT001, FBT002
         """Initialize the LCD1602 display.
 
         :param int address: I2C address of the LCD display.
@@ -130,7 +130,7 @@ class LCD1602(BaseElectronicsComponent):
         except Exception:
             self.logger.exception("Error writing text to LCD display!")
 
-    def set_backlight(self, enabled: bool) -> None:
+    def set_backlight(self, enabled: bool) -> None:  # noqa: FBT001
         """Enable or disable the LCD backlight.
 
         :param bool enabled: True to enable backlight, False to disable.
